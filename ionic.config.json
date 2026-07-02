@@ -1,0 +1,8 @@
+{
+  "name": "TeamReportMavis",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite",
+  "id": "f028e6c0"
+}
