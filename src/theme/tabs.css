@@ -1,0 +1,38 @@
+/* Ionic Variables and Theming for TeamReport Mavis */
+
+:root {
+  /* ===== Brand Colors ===== */
+  --ion-color-primary: #2563EB;
+  --ion-color-primary-rgb: 37, 99, 235;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #2151ce;
+  --ion-color-primary-tint: #3b6cec;
+
+  /* ===== App Background ===== */
+  --ion-background-color: #F8FAFC;
+  --ion-background-color-rgb: 248, 250, 252;
+
+  /* ===== Text ===== */
+  --ion-text-color: #0F172A;
+  --ion-text-color-rgb: 15, 23, 42;
+
+  /* ===== Card / Surface ===== */
+  --ion-item-background: #FFFFFF;
+  --ion-card-background: #FFFFFF;
+
+  /* ===== Border / Divider ===== */
+  --ion-border-color: #E2E8F0;
+
+  /* ===== Toolbar (Header) ===== */
+  --ion-toolbar-background: #FFFFFF;
+  --ion-toolbar-color: #0F172A;
+  --ion-toolbar-border-color: #E2E8F0;
+
+  /* ===== Custom Design Tokens ===== */
+  --app-radius-sm: 10px;
+  --app-radius-md: 14px;
+  --app-radius-lg: 20px;
+  --app-shadow-soft: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --app-shadow-card: 0 4px 12px rgba(15, 23, 42, 0.08);
+}

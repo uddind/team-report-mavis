@@ -1,0 +1,36 @@
+.laporan-content {
+  --background: #F8FAFC;
+}
+
+.laporan-searchbar {
+  padding: 8px 12px 4px 12px;
+  --background: #ffffff;
+  --border-radius: var(--app-radius-md, 14px);
+  --box-shadow: var(--app-shadow-soft);
+}
+
+.filter-section {
+  padding: 4px 12px 8px 12px;
+}
+
+.filter-section ion-segment {
+  --background: #ffffff;
+  border-radius: var(--app-radius-md, 14px);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.report-list-section {
+  padding: 4px 12px 24px 12px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #94A3B8;
+  font-size: 14px;
+  margin-top: 40px;
+}
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}

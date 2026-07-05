@@ -1,0 +1,43 @@
+.form-section-card {
+  border-radius: var(--app-radius-md, 14px);
+  box-shadow: var(--app-shadow-card, 0 4px 12px rgba(15, 23, 42, 0.08));
+  margin: 0 0 12px 0;
+}
+
+.form-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 12px 0;
+}
+
+.form-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-section-body ion-item {
+  --border-radius: var(--app-radius-sm, 10px);
+  --background: #F8FAFC;
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+  border: 1px solid var(--ion-border-color, #E2E8F0);
+  border-radius: var(--app-radius-sm, 10px);
+}
+
+.form-section-body ion-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+}
+
+.status-result-badge {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563EB;
+  background: #EFF6FF;
+  border-radius: var(--app-radius-sm, 10px);
+  padding: 8px 12px;
+}

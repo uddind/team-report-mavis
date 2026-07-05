@@ -1,0 +1,19 @@
+.tambah-report-content {
+  --background: #F8FAFC;
+}
+
+.tambah-report-content ion-card {
+  margin: 12px;
+}
+
+.tambah-report-actions {
+  display: flex;
+  gap: 12px;
+  padding: 8px 12px 24px 12px;
+}
+
+.tambah-report-actions ion-button {
+  --border-radius: var(--app-radius-sm, 10px);
+  flex: 1;
+  margin: 0;
+}

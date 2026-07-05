@@ -1,0 +1,42 @@
+.report-card {
+  border-radius: var(--app-radius-md, 14px);
+  box-shadow: var(--app-shadow-card, 0 4px 12px rgba(15, 23, 42, 0.08));
+  margin: 0 0 12px 0;
+}
+
+.report-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.report-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  color: #0F172A;
+}
+
+.report-card-body p {
+  font-size: 13px;
+  margin: 2px 0;
+  color: #334155;
+}
+
+.report-card-label {
+  font-weight: 600;
+  color: #64748B;
+}
+
+.report-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.report-card-actions ion-button {
+  --border-radius: var(--app-radius-sm, 10px);
+  margin: 0;
+}
