@@ -41,3 +41,15 @@
   border-radius: var(--app-radius-sm, 10px);
   padding: 8px 12px;
 }
+
+.status-result-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.status-result-badge-row .status-result-badge {
+  margin-top: 0;
+  flex: 1;
+}

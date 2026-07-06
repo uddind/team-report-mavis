@@ -1,0 +1,31 @@
+.status-info-button {
+  --padding-start: 4px;
+  --padding-end: 4px;
+  margin: 0;
+  height: 28px;
+}
+
+.status-info-popover {
+  --width: 280px;
+}
+
+.status-info-popover-content {
+  --background: #ffffff;
+  padding: 12px;
+}
+
+.status-info-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2563EB;
+  margin: 12px 0 4px 0;
+}
+
+.status-info-title:first-child {
+  margin-top: 0;
+}
+
+.status-info-popover-content ion-item {
+  --min-height: 32px;
+  font-size: 13px;
+}

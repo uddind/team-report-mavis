@@ -19,12 +19,11 @@ import {
 } from '@ionic/react';
 import Header from '../components/Header';
 import FormSectionCard from '../components/FormSectionCard';
-import type { Report, StatusCode, StatusTemperature } from '../types/Report';
+import StatusInfoPopover from '../components/StatusInfoPopover';
+import type { Report } from '../types/Report';
 import { getReportById, updateReport } from '../services/reportService';
+import { combinedStatusOptions, combineStatus, splitStatus } from '../utils/statusOptions';
 import './EditReport.css';
-
-const statusCodeOptions: StatusCode[] = ['OF', 'FU1', 'FU2', 'C', 'ND'];
-const statusTempOptions: StatusTemperature[] = ['Cold', 'Warm', 'Hot'];
 
 const EditReport: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -40,8 +39,7 @@ const EditReport: React.FC = () => {
   const [byChatVisit, setByChatVisit] = useState('');
   const [productOffer, setProductOffer] = useState('');
   const [respon, setRespon] = useState('');
-  const [statusCode, setStatusCode] = useState<StatusCode>('OF');
-  const [statusTemperature, setStatusTemperature] = useState<StatusTemperature>('Cold');
+  const [combinedStatus, setCombinedStatus] = useState('OF|Cold');
 
   // Previous Project
   const [prevVendor, setPrevVendor] = useState('');
@@ -65,8 +63,6 @@ const EditReport: React.FC = () => {
   // Informasi Lain
   const [informasiLain, setInformasiLain] = useState('');
 
-  // Load existing report data into form fields
-
   useEffect(() => {
     const loadReport = async () => {
       setLoading(true);
@@ -82,8 +78,7 @@ const EditReport: React.FC = () => {
       setByChatVisit(existing.byChatVisit);
       setProductOffer(existing.productOffer);
       setRespon(existing.respon);
-      setStatusCode(existing.statusCode);
-      setStatusTemperature(existing.statusTemperature);
+      setCombinedStatus(combineStatus(existing.statusCode, existing.statusTemperature));
 
       setPrevVendor(existing.previousProject.vendor);
       setPrevHarga(existing.previousProject.harga);
@@ -124,6 +119,8 @@ const EditReport: React.FC = () => {
       });
       return;
     }
+
+    const { statusCode, statusTemperature } = splitStatus(combinedStatus);
 
     const updatedReport: Report = {
       id: id ?? Date.now().toString(),
@@ -238,35 +235,23 @@ const EditReport: React.FC = () => {
           <IonItem lines="none">
             <IonLabel position="stacked">Status</IonLabel>
             <IonSelect
-              value={statusCode}
-              onIonChange={(e) => setStatusCode(e.detail.value)}
+              value={combinedStatus}
+              onIonChange={(e) => setCombinedStatus(e.detail.value)}
               interface="popover"
             >
-              {statusCodeOptions.map((s) => (
-                <IonSelectOption key={s} value={s}>
-                  {s}
+              {combinedStatusOptions.map((opt) => (
+                <IonSelectOption key={opt.value} value={opt.value}>
+                  {opt.label}
                 </IonSelectOption>
               ))}
             </IonSelect>
           </IonItem>
 
-          <IonItem lines="none">
-            <IonLabel position="stacked">Temperature</IonLabel>
-            <IonSelect
-              value={statusTemperature}
-              onIonChange={(e) => setStatusTemperature(e.detail.value)}
-              interface="popover"
-            >
-              {statusTempOptions.map((s) => (
-                <IonSelectOption key={s} value={s}>
-                  {s}
-                </IonSelectOption>
-              ))}
-            </IonSelect>
-          </IonItem>
-
-          <div className="status-result-badge">
-            Status : {statusCode} - {statusTemperature}
+          <div className="status-result-badge-row">
+            <div className="status-result-badge">
+              Status : {combinedStatus.replace('|', ' - ')}
+            </div>
+            <StatusInfoPopover />
           </div>
         </FormSectionCard>
 
@@ -274,39 +259,23 @@ const EditReport: React.FC = () => {
         <FormSectionCard title="⏰ PREVIOUS PROJECT">
           <IonItem lines="none">
             <IonLabel position="stacked">Vendor</IonLabel>
-            <IonInput
-              value={prevVendor}
-              onIonInput={(e) => setPrevVendor(e.detail.value ?? '')}
-            />
+            <IonInput value={prevVendor} onIonInput={(e) => setPrevVendor(e.detail.value ?? '')} />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Harga</IonLabel>
-            <IonInput
-              value={prevHarga}
-              onIonInput={(e) => setPrevHarga(e.detail.value ?? '')}
-            />
+            <IonInput value={prevHarga} onIonInput={(e) => setPrevHarga(e.detail.value ?? '')} />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Jumlah</IonLabel>
-            <IonInput
-              value={prevJumlah}
-              onIonInput={(e) => setPrevJumlah(e.detail.value ?? '')}
-            />
+            <IonInput value={prevJumlah} onIonInput={(e) => setPrevJumlah(e.detail.value ?? '')} />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
-            <IonInput
-              value={prevSpesifikasi}
-              onIonInput={(e) => setPrevSpesifikasi(e.detail.value ?? '')}
-            />
+            <IonInput value={prevSpesifikasi} onIonInput={(e) => setPrevSpesifikasi(e.detail.value ?? '')} />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Problem</IonLabel>
-            <IonTextarea
-              value={prevProblem}
-              onIonInput={(e) => setPrevProblem(e.detail.value ?? '')}
-              autoGrow
-            />
+            <IonTextarea value={prevProblem} onIonInput={(e) => setPrevProblem(e.detail.value ?? '')} autoGrow />
           </IonItem>
         </FormSectionCard>
 
@@ -314,39 +283,23 @@ const EditReport: React.FC = () => {
         <FormSectionCard title="💡 NEXT PROJECT">
           <IonItem lines="none">
             <IonLabel position="stacked">Vendor</IonLabel>
-            <IonInput
-              value={nextVendor}
-              onIonInput={(e) => setNextVendor(e.detail.value ?? '')}
-            />
+            <IonInput value={nextVendor} onIonInput={(e) => setNextVendor(e.detail.value ?? '')} />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Harga</IonLabel>
-            <IonInput
-              value={nextHarga}
-              onIonInput={(e) => setNextHarga(e.detail.value ?? '')}
-            />
+            <IonInput value={nextHarga} onIonInput={(e) => setNextHarga(e.detail.value ?? '')} />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Jumlah</IonLabel>
-            <IonInput
-              value={nextJumlah}
-              onIonInput={(e) => setNextJumlah(e.detail.value ?? '')}
-            />
+            <IonInput value={nextJumlah} onIonInput={(e) => setNextJumlah(e.detail.value ?? '')} />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
-            <IonInput
-              value={nextSpesifikasi}
-              onIonInput={(e) => setNextSpesifikasi(e.detail.value ?? '')}
-            />
+            <IonInput value={nextSpesifikasi} onIonInput={(e) => setNextSpesifikasi(e.detail.value ?? '')} />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Harapan</IonLabel>
-            <IonTextarea
-              value={nextHarapan}
-              onIonInput={(e) => setNextHarapan(e.detail.value ?? '')}
-              autoGrow
-            />
+            <IonTextarea value={nextHarapan} onIonInput={(e) => setNextHarapan(e.detail.value ?? '')} autoGrow />
           </IonItem>
         </FormSectionCard>
 
@@ -386,11 +339,7 @@ const EditReport: React.FC = () => {
 
           <IonItem lines="none">
             <IonLabel position="stacked">Catatan</IonLabel>
-            <IonTextarea
-              value={catatan}
-              onIonInput={(e) => setCatatan(e.detail.value ?? '')}
-              autoGrow
-            />
+            <IonTextarea value={catatan} onIonInput={(e) => setCatatan(e.detail.value ?? '')} autoGrow />
           </IonItem>
         </FormSectionCard>
 
