@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.mavis.teamreport',
-  appName: 'TeamReport Mavis',
+  appId: 'com.teamreport',
+  appName: 'ReportMavis',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
