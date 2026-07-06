@@ -197,10 +197,10 @@ const EditReport: React.FC = () => {
       <IonContent fullscreen className="edit-report-content">
         {/* 🏫 INFORMASI SEKOLAH */}
         <FormSectionCard title="🏫 INFORMASI SEKOLAH">
-          <IonItem lines="none">
-            <IonLabel position="stacked">Nama Sekolah</IonLabel>
-            <SchoolAutocomplete value={schoolName} onChange={setSchoolName} />
-          </IonItem>
+          <IonItem lines="none" className="school-name-item">
+  <IonLabel position="stacked">Nama Sekolah</IonLabel>
+  <SchoolAutocomplete value={schoolName} onChange={setSchoolName} />
+</IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">by Chat / Visit</IonLabel>

@@ -5,8 +5,22 @@
   padding: 0 2px;
 }
 
-.status-label-text {
+.status-label-text {s
   font-size: 12px;
   font-weight: 600;
   color: #64748B;
+}
+
+.school-name-item {
+  overflow: visible;
+  position: relative;
+  z-index: 5;
+}
+
+.school-name-item::part(native) {
+  overflow: visible;
+}
+
+.form-section-card {
+  overflow: visible;
 }
