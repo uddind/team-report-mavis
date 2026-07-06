@@ -6,6 +6,7 @@ import {
   IonItem,
   IonLabel,
   IonTextarea,
+  IonInput,
   IonSelect,
   IonSelectOption,
   IonButton,
@@ -86,7 +87,6 @@ const EditReport: React.FC = () => {
       setPrevJumlah(existing.previousProject.jumlah);
       setPrevSpesifikasi(existing.previousProject.spesifikasi);
       setPrevProblem(existing.previousProject.problem);
-
       setNextVendor(existing.nextProject.vendor);
       setNextHarga(existing.nextProject.harga);
       setNextJumlah(existing.nextProject.jumlah);
@@ -204,20 +204,20 @@ const EditReport: React.FC = () => {
 
           <IonItem lines="none">
             <IonLabel position="stacked">by Chat / Visit</IonLabel>
-            <input
+            <IonInput
               className="plain-text-input"
               value={byChatVisit}
-              onChange={(e) => setByChatVisit(e.target.value)}
               placeholder="Chat atau Visit"
+              onIonInput={(e) => setByChatVisit(e.detail.value ?? '')}
             />
           </IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">Product Offer</IonLabel>
-            <input
+            <IonInput
               className="plain-text-input"
               value={productOffer}
-              onChange={(e) => setProductOffer(e.target.value)}
+              onIonInput={(e) => setProductOffer(e.detail.value ?? '')}
               placeholder="Produk yang ditawarkan"
             />
           </IonItem>

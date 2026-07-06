@@ -83,10 +83,9 @@ const DetailReport: React.FC = () => {
           <p>- Problem : {report.previousProject.problem}</p>
 
           <h2 className="detail-section-title">💡 NEXT PROJECT</h2>
-          <p>- Vendor : {report.nextProject.vendor}</p>
+          <p>- Spesifikasi : {report.nextProject.spesifikasi}</p>
           <p>- Harga : {report.nextProject.harga}</p>
           <p>- Jumlah : {report.nextProject.jumlah}</p>
-          <p>- Spesifikasi : {report.nextProject.spesifikasi}</p>
           <p>&nbsp;</p>
           <p>- Harapan : {report.nextProject.harapan}</p>
 

@@ -43,7 +43,7 @@ const TambahReport: React.FC = () => {
   const [prevProblem, setPrevProblem] = useState('');
 
   // Next Project
-  const [nextVendor, setNextVendor] = useState('');
+  const [nextVendor] = useState('');
   const [nextHarga, setNextHarga] = useState('');
   const [nextJumlah, setNextJumlah] = useState('');
   const [nextSpesifikasi, setNextSpesifikasi] = useState('');
@@ -89,7 +89,7 @@ const TambahReport: React.FC = () => {
         spesifikasi: prevSpesifikasi,
         problem: prevProblem,
       },
-      nextProject: {
+     nextProject: {
         vendor: nextVendor,
         harga: nextHarga,
         jumlah: nextJumlah,
@@ -222,13 +222,13 @@ const TambahReport: React.FC = () => {
 
         {/* 💡 NEXT PROJECT */}
         <FormSectionCard title="💡 NEXT PROJECT">
-              <IonItem lines="none">
-            <IonLabel position="stacked">Vendor</IonLabel>
+          <IonItem lines="none">
+            <IonLabel position="stacked">Spesifikasi</IonLabel>
             <input
               className="plain-text-input"
-              value={nextVendor}
-              onChange={(e) => setNextVendor(e.target.value)}
-              placeholder="Contoh: MAVIS"
+              value={nextSpesifikasi}
+              onChange={(e) => setNextSpesifikasi(e.target.value)}
+              placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto (masih sama seperti tahun lalu)"
             />
           </IonItem>
           <IonItem lines="none">
@@ -237,20 +237,11 @@ const TambahReport: React.FC = () => {
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Jumlah</IonLabel>
-            <input
+            <input 
               className="plain-text-input"
               value={nextJumlah}
               onChange={(e) => setNextJumlah(e.target.value)}
               placeholder="Contoh: 1.650 eks"
-            />
-          </IonItem>
-          <IonItem lines="none">
-            <IonLabel position="stacked">Spesifikasi</IonLabel>
-            <input
-              className="plain-text-input"
-              value={nextSpesifikasi}
-              onChange={(e) => setNextSpesifikasi(e.target.value)}
-              placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto (masih sama seperti tahun lalu)"
             />
           </IonItem>
           <IonItem lines="none">
