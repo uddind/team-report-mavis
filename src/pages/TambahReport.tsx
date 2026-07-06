@@ -17,7 +17,7 @@ import {
 } from '@ionic/react';
 import Header from '../components/Header';
 import FormSectionCard from '../components/FormSectionCard';
-import StatusInfoPopover from '../components/StatusInfoPopover';
+import StatusLegend from '../components/StatusLegend';
 import type { Report } from '../types/Report';
 import { addReport } from '../services/reportService';
 import { combinedStatusOptions, splitStatus } from '../utils/statusOptions';
@@ -174,12 +174,7 @@ const TambahReport: React.FC = () => {
             </IonSelect>
           </IonItem>
 
-          <div className="status-result-badge-row">
-            <div className="status-result-badge">
-              Status : {combinedStatus.replace('|', ' - ')}
-            </div>
-            <StatusInfoPopover />
-          </div>
+          <StatusLegend />
         </FormSectionCard>
 
         {/* ⏰ PREVIOUS PROJECT */}

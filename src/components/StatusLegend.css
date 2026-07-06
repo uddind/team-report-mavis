@@ -1,0 +1,53 @@
+.status-legend {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 8px 12px;
+  background: #EFF6FF;
+  border-radius: var(--app-radius-sm, 10px);
+}
+
+.legend-label {
+  font-weight: 600;
+  color: #2563EB;
+}
+
+.legend-term {
+  color: #2563EB;
+  font-weight: 700;
+  text-decoration: underline dotted;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.legend-separator {
+  color: #64748B;
+  margin: 0 1px;
+}
+
+.legend-dash {
+  margin: 0 4px;
+}
+
+.status-legend-popover {
+  --width: 220px;
+}
+
+.status-legend-popover-content {
+  --background: #ffffff;
+  padding: 10px 12px;
+}
+
+.legend-popover-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2563EB;
+  margin: 0 0 4px 0;
+}
+
+.legend-popover-desc {
+  font-size: 12px;
+  color: #334155;
+  margin: 0;
+  line-height: 1.4;
+}
