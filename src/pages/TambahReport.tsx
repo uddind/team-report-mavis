@@ -200,28 +200,35 @@ const TambahReport: React.FC = () => {
               onChange={(e) => setPrevJumlah(e.target.value)}
             />
           </IonItem>
-          <IonItem lines="none">
+            <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
             <input
               className="plain-text-input"
               value={prevSpesifikasi}
               onChange={(e) => setPrevSpesifikasi(e.target.value)}
+              placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto"
             />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Problem</IonLabel>
-            <IonTextarea value={prevProblem} onIonInput={(e) => setPrevProblem(e.detail.value ?? '')} autoGrow />
+            <IonTextarea
+              value={prevProblem}
+              onIonInput={(e) => setPrevProblem(e.detail.value ?? '')}
+              autoGrow
+              placeholder="Contoh: Kualitas cetak kurang tajam"
+            />
           </IonItem>
         </FormSectionCard>
 
         {/* 💡 NEXT PROJECT */}
         <FormSectionCard title="💡 NEXT PROJECT">
-          <IonItem lines="none">
+              <IonItem lines="none">
             <IonLabel position="stacked">Vendor</IonLabel>
             <input
               className="plain-text-input"
               value={nextVendor}
               onChange={(e) => setNextVendor(e.target.value)}
+              placeholder="Contoh: MAVIS"
             />
           </IonItem>
           <IonItem lines="none">
@@ -234,6 +241,7 @@ const TambahReport: React.FC = () => {
               className="plain-text-input"
               value={nextJumlah}
               onChange={(e) => setNextJumlah(e.target.value)}
+              placeholder="Contoh: 1.650 eks"
             />
           </IonItem>
           <IonItem lines="none">
@@ -242,11 +250,17 @@ const TambahReport: React.FC = () => {
               className="plain-text-input"
               value={nextSpesifikasi}
               onChange={(e) => setNextSpesifikasi(e.target.value)}
+              placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto (masih sama seperti tahun lalu)"
             />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Harapan</IonLabel>
-            <IonTextarea value={nextHarapan} onIonInput={(e) => setNextHarapan(e.detail.value ?? '')} autoGrow />
+            <IonTextarea
+              value={nextHarapan}
+              onIonInput={(e) => setNextHarapan(e.detail.value ?? '')}
+              autoGrow
+              placeholder="Contoh: Kualitas cetak lebih baik dari sebelumnya"
+            />
           </IonItem>
         </FormSectionCard>
 
