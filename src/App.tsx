@@ -31,6 +31,7 @@ import Laporan from './pages/Laporan';
 import TambahReport from './pages/TambahReport';
 import DetailReport from './pages/DetailReport';
 import EditReport from './pages/EditReport';
+import Profile from './pages/Profile';
 
 setupIonicReact();
 
@@ -44,6 +45,7 @@ const App: React.FC = () => (
           <Route exact path="/laporan" component={Laporan} />
           <Route exact path="/detail-report/:id" component={DetailReport} />
           <Route exact path="/edit-report/:id" component={EditReport} />
+          <Route exact path="/profile" component={Profile} />
           <Route exact path="/">
             <Redirect to="/beranda" />
           </Route>

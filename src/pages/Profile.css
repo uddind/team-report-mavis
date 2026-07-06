@@ -1,0 +1,65 @@
+.profile-content {
+  --background: #F8FAFC;
+}
+
+.profile-back-row {
+  padding: 8px 8px 0 8px;
+}
+
+.profile-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 12px 20px 12px;
+}
+
+.profile-avatar-circle {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: #2563EB;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--app-shadow-card, 0 4px 12px rgba(15, 23, 42, 0.08));
+}
+
+.profile-avatar-placeholder {
+  font-size: 84px;
+  color: #94A3B8;
+}
+
+.profile-avatar-name {
+  margin: 10px 0 2px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.profile-avatar-role {
+  margin: 0;
+  font-size: 13px;
+  color: #64748B;
+}
+
+.profile-content ion-card {
+  margin: 12px;
+}
+
+.profile-actions {
+  padding: 8px 12px 24px 12px;
+}
+
+.profile-actions ion-button {
+  --border-radius: var(--app-radius-sm, 10px);
+  margin: 0;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
