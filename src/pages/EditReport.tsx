@@ -5,7 +5,6 @@ import {
   IonPage,
   IonItem,
   IonLabel,
-  IonInput,
   IonTextarea,
   IonSelect,
   IonSelectOption,
@@ -19,7 +18,9 @@ import {
 } from '@ionic/react';
 import Header from '../components/Header';
 import FormSectionCard from '../components/FormSectionCard';
-import StatusLegend from '../components/StatusLegend';
+import StatusInfoPopover from '../components/StatusInfoPopover';
+import SchoolAutocomplete from '../components/SchoolAutocomplete';
+import ComboPriceInput from '../components/ComboPriceInput';
 import type { Report } from '../types/Report';
 import { getReportById, updateReport } from '../services/reportService';
 import { combinedStatusOptions, combineStatus, splitStatus } from '../utils/statusOptions';
@@ -198,42 +199,44 @@ const EditReport: React.FC = () => {
         <FormSectionCard title="🏫 INFORMASI SEKOLAH">
           <IonItem lines="none">
             <IonLabel position="stacked">Nama Sekolah</IonLabel>
-            <IonInput
-              value={schoolName}
-              onIonInput={(e) => setSchoolName(e.detail.value ?? '')}
-              placeholder="Masukkan nama sekolah"
-            />
+            <SchoolAutocomplete value={schoolName} onChange={setSchoolName} />
           </IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">by Chat / Visit</IonLabel>
-            <IonInput
+            <input
+              className="plain-text-input"
               value={byChatVisit}
-              onIonInput={(e) => setByChatVisit(e.detail.value ?? '')}
+              onChange={(e) => setByChatVisit(e.target.value)}
               placeholder="Chat atau Visit"
             />
           </IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">Product Offer</IonLabel>
-            <IonInput
+            <input
+              className="plain-text-input"
               value={productOffer}
-              onIonInput={(e) => setProductOffer(e.detail.value ?? '')}
+              onChange={(e) => setProductOffer(e.target.value)}
               placeholder="Produk yang ditawarkan"
             />
           </IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">Respon</IonLabel>
-            <IonInput
+            <input
+              className="plain-text-input"
               value={respon}
-              onIonInput={(e) => setRespon(e.detail.value ?? '')}
+              onChange={(e) => setRespon(e.target.value)}
               placeholder="Respon dari sekolah"
             />
           </IonItem>
 
+          <div className="status-label-row">
+            <span className="status-label-text">Status</span>
+            <StatusInfoPopover />
+          </div>
           <IonItem lines="none">
-            <IonLabel position="stacked">Status</IonLabel>
             <IonSelect
               value={combinedStatus}
               onIonChange={(e) => setCombinedStatus(e.detail.value)}
@@ -246,27 +249,37 @@ const EditReport: React.FC = () => {
               ))}
             </IonSelect>
           </IonItem>
-
-              <StatusLegend />
         </FormSectionCard>
 
         {/* ⏰ PREVIOUS PROJECT */}
         <FormSectionCard title="⏰ PREVIOUS PROJECT">
           <IonItem lines="none">
             <IonLabel position="stacked">Vendor</IonLabel>
-            <IonInput value={prevVendor} onIonInput={(e) => setPrevVendor(e.detail.value ?? '')} />
+            <input
+              className="plain-text-input"
+              value={prevVendor}
+              onChange={(e) => setPrevVendor(e.target.value)}
+            />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Harga</IonLabel>
-            <IonInput value={prevHarga} onIonInput={(e) => setPrevHarga(e.detail.value ?? '')} />
+            <ComboPriceInput value={prevHarga} onChange={setPrevHarga} />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Jumlah</IonLabel>
-            <IonInput value={prevJumlah} onIonInput={(e) => setPrevJumlah(e.detail.value ?? '')} />
+            <input
+              className="plain-text-input"
+              value={prevJumlah}
+              onChange={(e) => setPrevJumlah(e.target.value)}
+            />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
-            <IonInput value={prevSpesifikasi} onIonInput={(e) => setPrevSpesifikasi(e.detail.value ?? '')} />
+            <input
+              className="plain-text-input"
+              value={prevSpesifikasi}
+              onChange={(e) => setPrevSpesifikasi(e.target.value)}
+            />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Problem</IonLabel>
@@ -278,19 +291,31 @@ const EditReport: React.FC = () => {
         <FormSectionCard title="💡 NEXT PROJECT">
           <IonItem lines="none">
             <IonLabel position="stacked">Vendor</IonLabel>
-            <IonInput value={nextVendor} onIonInput={(e) => setNextVendor(e.detail.value ?? '')} />
+            <input
+              className="plain-text-input"
+              value={nextVendor}
+              onChange={(e) => setNextVendor(e.target.value)}
+            />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Harga</IonLabel>
-            <IonInput value={nextHarga} onIonInput={(e) => setNextHarga(e.detail.value ?? '')} />
+            <ComboPriceInput value={nextHarga} onChange={setNextHarga} />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Jumlah</IonLabel>
-            <IonInput value={nextJumlah} onIonInput={(e) => setNextJumlah(e.detail.value ?? '')} />
+            <input
+              className="plain-text-input"
+              value={nextJumlah}
+              onChange={(e) => setNextJumlah(e.target.value)}
+            />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
-            <IonInput value={nextSpesifikasi} onIonInput={(e) => setNextSpesifikasi(e.detail.value ?? '')} />
+            <input
+              className="plain-text-input"
+              value={nextSpesifikasi}
+              onChange={(e) => setNextSpesifikasi(e.target.value)}
+            />
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Harapan</IonLabel>

@@ -1,32 +1,10 @@
-.edit-report-content {
-  --background: #F8FAFC;
-}
-
-.edit-report-content ion-card {
-  margin: 12px;
-}
-
-.edit-report-actions {
-  display: flex;
-  gap: 12px;
-  padding: 8px 12px 24px 12px;
-}
-
-.edit-report-actions ion-button {
-  --border-radius: var(--app-radius-sm, 10px);
-  flex: 1;
-  margin: 0;
-}
-
-.empty-state {
-  text-align: center;
-  color: #94A3B8;
+.plain-text-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
   font-size: 14px;
-  margin-top: 40px;
-}
-
-.loading-state {
-  display: flex;
-  justify-content: center;
-  padding: 40px 0;
+  color: #0F172A;
+  padding: 8px 0;
+  font-family: inherit;
 }
