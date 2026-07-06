@@ -25,7 +25,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationClick }) => {
     <IonHeader className="ion-no-border">
       <IonToolbar>
         <IonTitle slot="start" className="mavis-title">
-          📋 Mavis Report
+          📋 MRS
         </IonTitle>
 
         <IonButtons slot="end">
