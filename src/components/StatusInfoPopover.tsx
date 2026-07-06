@@ -27,16 +27,12 @@ const StatusInfoPopover: React.FC = () => {
         className="status-info-popover"
       >
         <IonContent class="status-info-popover-content">
-          <h4 className="status-info-heading">Kode Status</h4>
+          <h4 className="status-info-heading">Keterangan Status</h4>
           <p><strong>OF</strong> — Offer, penawaran awal</p>
           <p><strong>FU1</strong> — Follow Up pertama</p>
           <p><strong>FU2</strong> — Follow Up kedua</p>
           <p><strong>C</strong> — Closing, deal berhasil</p>
           <p><strong>ND</strong> — No Deal, tidak lanjut</p>
-          <h4 className="status-info-heading">Temperatur</h4>
-          <p><strong>Cold</strong> — belum tertarik</p>
-          <p><strong>Warm</strong> — mulai tertarik</p>
-          <p><strong>Hot</strong> — siap closing</p>
         </IonContent>
       </IonPopover>
     </>
