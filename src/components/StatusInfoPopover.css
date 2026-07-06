@@ -1,31 +1,32 @@
-.status-info-button {
+.status-info-btn {
   --padding-start: 4px;
   --padding-end: 4px;
   margin: 0;
-  height: 28px;
+  height: 22px;
 }
 
 .status-info-popover {
-  --width: 280px;
+  --width: 240px;
 }
 
 .status-info-popover-content {
   --background: #ffffff;
-  padding: 12px;
+  padding: 10px 12px;
+  font-size: 12px;
 }
 
-.status-info-title {
+.status-info-heading {
   font-size: 13px;
   font-weight: 700;
   color: #2563EB;
-  margin: 12px 0 4px 0;
+  margin: 10px 0 4px 0;
 }
 
-.status-info-title:first-child {
+.status-info-heading:first-child {
   margin-top: 0;
 }
 
-.status-info-popover-content ion-item {
-  --min-height: 32px;
-  font-size: 13px;
+.status-info-popover-content p {
+  margin: 2px 0;
+  color: #334155;
 }
