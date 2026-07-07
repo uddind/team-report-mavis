@@ -253,7 +253,7 @@ const TambahReport: React.FC = () => {
           </IonItem>
         </CollapsibleSectionCard>
 
-        <FormSectionCard title="💡 NEXT PROJECT">
+        <CollapsibleSectionCard title="💡 NEXT PROJECT">
           <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
             <div className="input-with-icon">
@@ -293,9 +293,9 @@ const TambahReport: React.FC = () => {
               placeholder="Contoh: Kualitas cetak lebih baik dari sebelumnya"
             />
           </IonItem>
-        </FormSectionCard>
+        </CollapsibleSectionCard>
 
-        <FormSectionCard title="🗓 APPOINTMENT">
+        <CollapsibleSectionCard title="🗓 APPOINTMENT">
           <IonItem lines="none">
             <IonLabel position="stacked">Tanggal</IonLabel>
             <div className="datetime-box">
@@ -334,9 +334,9 @@ const TambahReport: React.FC = () => {
             <IonLabel position="stacked">Catatan</IonLabel>
             <IonTextarea value={catatan} onIonInput={(e) => setCatatan(e.detail.value ?? '')} autoGrow />
           </IonItem>
-        </FormSectionCard>
+        </CollapsibleSectionCard>
 
-        <FormSectionCard title="🔑 INFORMASI LAIN">
+        <CollapsibleSectionCard title="🔑 INFORMASI LAIN">
           <IonItem lines="none">
             <IonTextarea
               value={informasiLain}
@@ -346,7 +346,7 @@ const TambahReport: React.FC = () => {
               placeholder="Tulis informasi tambahan di sini..."
             />
           </IonItem>
-        </FormSectionCard>
+        </CollapsibleSectionCard>
 
         <div className="tambah-report-actions">
           <IonButton expand="block" fill="outline" onClick={handleBatal}>

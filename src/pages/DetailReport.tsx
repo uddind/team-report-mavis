@@ -104,6 +104,14 @@ const DetailReport: React.FC = () => {
             Edit Report
           </IonButton>
         </div>
+
+      <div className="detail-back-row">
+          <button className="modern-back-btn" onClick={handleBack}>
+            <IonIcon icon={arrowBackOutline} />
+            Kembali
+          </button>
+        </div>
+
       </IonContent>
     </IonPage>
   );
