@@ -36,3 +36,11 @@
   --app-shadow-soft: 0 2px 8px rgba(15, 23, 42, 0.06);
   --app-shadow-card: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
+
+ion-tab-button[tab="tambah-report"] ion-icon{
+  transition: all 200ms ease; 
+}
+
+ion-tab-button[tab="tambah-report"]:hover ion-icon{
+  transform: scale(1.08);
+}

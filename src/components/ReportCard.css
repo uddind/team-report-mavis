@@ -1,42 +1,65 @@
 .report-card {
-  border-radius: var(--app-radius-md, 14px);
-  box-shadow: var(--app-shadow-card, 0 4px 12px rgba(15, 23, 42, 0.08));
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+  padding: 16px;
   margin: 0 0 12px 0;
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.report-card:hover {
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+}
+
+.hover-scale:active {
+  transform: scale(0.98);
 }
 
 .report-card-top {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 8px;
+  align-items: center;
 }
 
-.report-card-title {
-  font-size: 16px;
+.report-badge {
+  font-size: 12px;
   font-weight: 700;
-  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.report-card-arrow {
+  color: #CBD5E1;
+  font-size: 18px;
+}
+
+.report-card-school {
+  font-size: 15px;
+  font-weight: 700;
   color: #0F172A;
+  margin: 10px 0 6px 0;
 }
 
-.report-card-body p {
-  font-size: 13px;
-  margin: 2px 0;
-  color: #334155;
-}
-
-.report-card-label {
-  font-weight: 600;
+.report-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
   color: #64748B;
+}
+
+.report-card-method {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .report-card-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.report-card-actions ion-button {
-  --border-radius: var(--app-radius-sm, 10px);
-  margin: 0;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #F1F5F9;
 }

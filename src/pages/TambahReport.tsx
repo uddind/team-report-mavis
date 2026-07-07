@@ -4,6 +4,7 @@ import {
   IonPage,
   IonItem,
   IonLabel,
+  IonIcon,
   IonTextarea,
   IonSelect,
   IonSelectOption,
@@ -14,8 +15,18 @@ import {
   useIonRouter,
   useIonToast,
 } from '@ionic/react';
+import {
+  chatbubbleOutline,
+  pricetagOutline,
+  chatboxEllipsesOutline,
+  cubeOutline,
+  documentTextOutline,
+  alertCircleOutline,
+  bulbOutline,
+} from 'ionicons/icons';
 import Header from '../components/Header';
 import FormSectionCard from '../components/FormSectionCard';
+import CollapsibleSectionCard from '../components/CollapsibleSectionCard';
 import StatusInfoModal from '../components/StatusInfoModal';
 import StatusPreviewCard from '../components/StatusPreviewCard';
 import SchoolAutocomplete from '../components/SchoolAutocomplete';
@@ -29,32 +40,27 @@ const TambahReport: React.FC = () => {
   const router = useIonRouter();
   const [presentToast] = useIonToast();
 
-  // Informasi Sekolah
   const [schoolName, setSchoolName] = useState('');
   const [byChatVisit, setByChatVisit] = useState('');
   const [productOffer, setProductOffer] = useState('');
   const [respon, setRespon] = useState('');
   const [combinedStatus, setCombinedStatus] = useState('OF|Cold');
 
-  // Previous Project
   const [prevVendor, setPrevVendor] = useState('');
   const [prevHarga, setPrevHarga] = useState('');
   const [prevJumlah, setPrevJumlah] = useState('');
   const [prevSpesifikasi, setPrevSpesifikasi] = useState('');
   const [prevProblem, setPrevProblem] = useState('');
 
-  // Next Project (tanpa Vendor)
   const [nextHarga, setNextHarga] = useState('');
   const [nextJumlah, setNextJumlah] = useState('');
   const [nextSpesifikasi, setNextSpesifikasi] = useState('');
   const [nextHarapan, setNextHarapan] = useState('');
 
-  // Appointment
   const [tanggal, setTanggal] = useState('');
   const [jam, setJam] = useState('');
   const [catatan, setCatatan] = useState('');
 
-  // Informasi Lain
   const [informasiLain, setInformasiLain] = useState('');
 
   const handleBatal = () => {
@@ -122,7 +128,6 @@ const TambahReport: React.FC = () => {
     <IonPage>
       <Header />
       <IonContent fullscreen className="tambah-report-content">
-        {/* 🏫 INFORMASI SEKOLAH */}
         <FormSectionCard title="🏫 INFORMASI SEKOLAH">
           <IonItem lines="none" className="school-name-item">
             <IonLabel position="stacked">Nama Sekolah</IonLabel>
@@ -131,32 +136,41 @@ const TambahReport: React.FC = () => {
 
           <IonItem lines="none">
             <IonLabel position="stacked">by Chat / Visit</IonLabel>
-            <input
-              className="plain-text-input"
-              value={byChatVisit}
-              onChange={(e) => setByChatVisit(e.target.value)}
-              placeholder="Chat atau Visit"
-            />
+            <div className="input-with-icon">
+              <IonIcon icon={chatbubbleOutline} className="input-icon" />
+              <input
+                className="plain-text-input has-icon"
+                value={byChatVisit}
+                onChange={(e) => setByChatVisit(e.target.value)}
+                placeholder="Chat atau Visit"
+              />
+            </div>
           </IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">Product Offer</IonLabel>
-            <input
-              className="plain-text-input"
-              value={productOffer}
-              onChange={(e) => setProductOffer(e.target.value)}
-              placeholder="Produk yang ditawarkan"
-            />
+            <div className="input-with-icon">
+              <IonIcon icon={pricetagOutline} className="input-icon" />
+              <input
+                className="plain-text-input has-icon"
+                value={productOffer}
+                onChange={(e) => setProductOffer(e.target.value)}
+                placeholder="Produk yang ditawarkan"
+              />
+            </div>
           </IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">Respon</IonLabel>
-            <input
-              className="plain-text-input"
-              value={respon}
-              onChange={(e) => setRespon(e.target.value)}
-              placeholder="Respon dari sekolah"
-            />
+            <div className="input-with-icon">
+              <IonIcon icon={chatboxEllipsesOutline} className="input-icon" />
+              <input
+                className="plain-text-input has-icon"
+                value={respon}
+                onChange={(e) => setRespon(e.target.value)}
+                placeholder="Respon dari sekolah"
+              />
+            </div>
           </IonItem>
 
           <div className="status-label-row">
@@ -183,19 +197,20 @@ const TambahReport: React.FC = () => {
           <div className="status-info-trigger-row">
             <StatusInfoModal />
           </div>
-                 
-                  </FormSectionCard>
+        </FormSectionCard>
 
-        {/* ⏰ PREVIOUS PROJECT */}
-        <FormSectionCard title="⏰ PREVIOUS PROJECT">
+        <CollapsibleSectionCard title="⏰ PREVIOUS PROJECT">
           <IonItem lines="none">
             <IonLabel position="stacked">Vendor</IonLabel>
-            <input
-              className="plain-text-input"
-              value={prevVendor}
-              onChange={(e) => setPrevVendor(e.target.value)}
-              placeholder="Contoh: MAVIS"
-            />
+            <div className="input-with-icon">
+              <IonIcon icon={cubeOutline} className="input-icon" />
+              <input
+                className="plain-text-input has-icon"
+                value={prevVendor}
+                onChange={(e) => setPrevVendor(e.target.value)}
+                placeholder="Contoh: MAVIS"
+              />
+            </div>
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Harga</IonLabel>
@@ -203,24 +218,32 @@ const TambahReport: React.FC = () => {
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Jumlah</IonLabel>
-            <input
-              className="plain-text-input"
-              value={prevJumlah}
-              onChange={(e) => setPrevJumlah(e.target.value)}
-              placeholder="Contoh: 1.650 eks"
-            />
+            <div className="input-with-icon">
+              <IonIcon icon={cubeOutline} className="input-icon" />
+              <input
+                className="plain-text-input has-icon"
+                value={prevJumlah}
+                onChange={(e) => setPrevJumlah(e.target.value)}
+                placeholder="Contoh: 1.650 eks"
+              />
+            </div>
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
-            <input
-              className="plain-text-input"
-              value={prevSpesifikasi}
-              onChange={(e) => setPrevSpesifikasi(e.target.value)}
-              placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto"
-            />
+            <div className="input-with-icon">
+              <IonIcon icon={documentTextOutline} className="input-icon" />
+              <input
+                className="plain-text-input has-icon"
+                value={prevSpesifikasi}
+                onChange={(e) => setPrevSpesifikasi(e.target.value)}
+                placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto"
+              />
+            </div>
           </IonItem>
           <IonItem lines="none">
-            <IonLabel position="stacked">Problem</IonLabel>
+            <IonLabel position="stacked">
+              <IonIcon icon={alertCircleOutline} className="label-icon" /> Problem
+            </IonLabel>
             <IonTextarea
               value={prevProblem}
               onIonInput={(e) => setPrevProblem(e.detail.value ?? '')}
@@ -228,18 +251,20 @@ const TambahReport: React.FC = () => {
               placeholder="Contoh: Kualitas cetak kurang tajam"
             />
           </IonItem>
-        </FormSectionCard>
+        </CollapsibleSectionCard>
 
-        {/* 💡 NEXT PROJECT (tanpa Vendor) */}
         <FormSectionCard title="💡 NEXT PROJECT">
           <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
-            <input
-              className="plain-text-input"
-              value={nextSpesifikasi}
-              onChange={(e) => setNextSpesifikasi(e.target.value)}
-              placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto (masih sama seperti tahun lalu)"
-            />
+            <div className="input-with-icon">
+              <IonIcon icon={documentTextOutline} className="input-icon" />
+              <input
+                className="plain-text-input has-icon"
+                value={nextSpesifikasi}
+                onChange={(e) => setNextSpesifikasi(e.target.value)}
+                placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto (masih sama seperti tahun lalu)"
+              />
+            </div>
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Harga</IonLabel>
@@ -247,15 +272,20 @@ const TambahReport: React.FC = () => {
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Jumlah</IonLabel>
-            <input
-              className="plain-text-input"
-              value={nextJumlah}
-              onChange={(e) => setNextJumlah(e.target.value)}
-              placeholder="Contoh: 1.650 eks"
-            />
+            <div className="input-with-icon">
+              <IonIcon icon={cubeOutline} className="input-icon" />
+              <input
+                className="plain-text-input has-icon"
+                value={nextJumlah}
+                onChange={(e) => setNextJumlah(e.target.value)}
+                placeholder="Contoh: 1.650 eks"
+              />
+            </div>
           </IonItem>
           <IonItem lines="none">
-            <IonLabel position="stacked">Harapan</IonLabel>
+            <IonLabel position="stacked">
+              <IonIcon icon={bulbOutline} className="label-icon" /> Harapan
+            </IonLabel>
             <IonTextarea
               value={nextHarapan}
               onIonInput={(e) => setNextHarapan(e.detail.value ?? '')}
@@ -265,7 +295,6 @@ const TambahReport: React.FC = () => {
           </IonItem>
         </FormSectionCard>
 
-        {/* 🗓 APPOINTMENT */}
         <FormSectionCard title="🗓 APPOINTMENT">
           <IonItem lines="none">
             <IonLabel position="stacked">Tanggal</IonLabel>
@@ -307,7 +336,6 @@ const TambahReport: React.FC = () => {
           </IonItem>
         </FormSectionCard>
 
-        {/* 🔑 INFORMASI LAIN */}
         <FormSectionCard title="🔑 INFORMASI LAIN">
           <IonItem lines="none">
             <IonTextarea
@@ -320,7 +348,6 @@ const TambahReport: React.FC = () => {
           </IonItem>
         </FormSectionCard>
 
-        {/* Bottom Buttons */}
         <div className="tambah-report-actions">
           <IonButton expand="block" fill="outline" onClick={handleBatal}>
             Batal

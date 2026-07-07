@@ -7,23 +7,29 @@ import {
   IonSegmentButton,
   IonLabel,
   IonSpinner,
+  IonIcon,
+  IonButton,
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
+import { optionsOutline, documentTextOutline, addOutline } from 'ionicons/icons';
 import Header from '../components/Header';
 import ReportCard from '../components/ReportCard';
 import type { Report, StatusCode } from '../types/Report';
 import { getAllReports } from '../services/reportService';
+import { statusMetaMap } from '../utils/statusMeta';
 import './Beranda.css';
 
 type FilterValue = 'Semua' | StatusCode;
 
 const statusFilters: FilterValue[] = ['Semua', 'OF', 'FU1', 'FU2', 'C', 'ND'];
+const dashboardCodes: StatusCode[] = ['OF', 'FU1', 'FU2', 'C', 'ND'];
 
 const Beranda: React.FC = () => {
   const router = useIonRouter();
   const [searchText, setSearchText] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterValue>('Semua');
+  const [showFilter, setShowFilter] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +40,6 @@ const Beranda: React.FC = () => {
     setLoading(false);
   };
 
-  // Reload every time this tab becomes active (e.g. after adding/editing a report)
   useIonViewWillEnter(() => {
     loadReports();
   });
@@ -63,54 +68,65 @@ const Beranda: React.FC = () => {
     router.push(`/edit-report/${id}`);
   };
 
+  const handleTambahReport = () => {
+    router.push('/tambah-report');
+  };
+
   return (
     <IonPage>
       <Header />
       <IonContent fullscreen className="beranda-content">
-        <IonSearchbar
-          value={searchText}
-          onIonInput={(e) => setSearchText(e.detail.value ?? '')}
-          placeholder="Cari nama sekolah..."
-          className="beranda-searchbar"
-        />
+        <div className="search-row">
+          <IonSearchbar
+            value={searchText}
+            onIonInput={(e) => setSearchText(e.detail.value ?? '')}
+            placeholder="Cari nama sekolah..."
+            className="beranda-searchbar"
+          />
+          <button
+            className={`filter-btn ${showFilter ? 'filter-btn-active' : ''}`}
+            onClick={() => setShowFilter((v) => !v)}
+          >
+            <IonIcon icon={optionsOutline} />
+          </button>
+        </div>
+
+        {showFilter && (
+          <div className="filter-section fade-in">
+            <IonSegment
+              scrollable
+              value={activeFilter}
+              onIonChange={(e) => setActiveFilter(e.detail.value as FilterValue)}
+            >
+              {statusFilters.map((f) => (
+                <IonSegmentButton key={f} value={f}>
+                  <IonLabel>{f}</IonLabel>
+                </IonSegmentButton>
+              ))}
+            </IonSegment>
+          </div>
+        )}
 
         <div className="summary-section">
           <div className="summary-grid">
-            <div className="summary-item">
-              <span className="summary-value">{summaryCounts.OF}</span>
-              <span className="summary-label">OF</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">{summaryCounts.FU1}</span>
-              <span className="summary-label">FU1</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">{summaryCounts.FU2}</span>
-              <span className="summary-label">FU2</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">{summaryCounts.C}</span>
-              <span className="summary-label">C</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">{summaryCounts.ND}</span>
-              <span className="summary-label">ND</span>
-            </div>
+            {dashboardCodes.map((code) => {
+              const meta = statusMetaMap[code];
+              return (
+                <div
+                  key={code}
+                  className="summary-card hover-scale"
+                  style={{ background: meta.bgColor }}
+                >
+                  <span className="summary-value" style={{ color: meta.color }}>
+                    {summaryCounts[code]}
+                  </span>
+                  <span className="summary-label" style={{ color: meta.color }}>
+                    {code}
+                  </span>
+                </div>
+              );
+            })}
           </div>
-        </div>
-
-        <div className="filter-section">
-          <IonSegment
-            scrollable
-            value={activeFilter}
-            onIonChange={(e) => setActiveFilter(e.detail.value as FilterValue)}
-          >
-            {statusFilters.map((f) => (
-              <IonSegmentButton key={f} value={f}>
-                <IonLabel>{f}</IonLabel>
-              </IonSegmentButton>
-            ))}
-          </IonSegment>
         </div>
 
         <div className="report-list-section">
@@ -119,7 +135,17 @@ const Beranda: React.FC = () => {
               <IonSpinner name="crescent" />
             </div>
           ) : filteredReports.length === 0 ? (
-            <p className="empty-state">Tidak ada report ditemukan.</p>
+            <div className="empty-state fade-in">
+              <IonIcon icon={documentTextOutline} className="empty-state-icon" />
+              <h3 className="empty-state-title">Belum ada report ditemukan</h3>
+              <p className="empty-state-desc">
+                Buat report pertama Anda dengan menekan tombol tambah.
+              </p>
+              <IonButton className="empty-state-btn" onClick={handleTambahReport}>
+                <IonIcon icon={addOutline} slot="start" />
+                Tambah Report
+              </IonButton>
+            </div>
           ) : (
             filteredReports.map((report) => (
               <ReportCard

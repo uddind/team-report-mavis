@@ -1,0 +1,23 @@
+.collapsible-section-card {
+  padding: 0;
+}
+
+.collapsible-header {
+  --background: transparent;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 56px;
+}
+
+.collapsible-title-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.collapsible-content {
+  padding: 0 16px 16px 16px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}

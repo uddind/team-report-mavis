@@ -7,7 +7,7 @@ import {
   IonTitle,
   useIonRouter,
 } from '@ionic/react';
-import { personCircleOutline, notificationsOutline } from 'ionicons/icons';
+import { personOutline, notificationsOutline } from 'ionicons/icons';
 import './Header.css';
 
 interface HeaderProps {
@@ -29,8 +29,10 @@ const Header: React.FC<HeaderProps> = ({ onNotificationClick }) => {
         </IonTitle>
 
         <IonButtons slot="end">
-          <IonButton onClick={handleProfileClick} fill="clear">
-            <IonIcon icon={personCircleOutline} slot="icon-only" />
+          <IonButton onClick={handleProfileClick} fill="clear" className="avatar-button">
+            <div className="avatar-circle">
+              <IonIcon icon={personOutline} />
+            </div>
           </IonButton>
           <IonButton onClick={onNotificationClick} fill="clear">
             <IonIcon icon={notificationsOutline} slot="icon-only" />
