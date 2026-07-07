@@ -8,3 +8,33 @@
   padding: 8px 0;
   font-family: inherit;
 }
+
+.plain-text-input {
+  width: 100%;
+  border: 1.5px solid var(--ion-border-color, #E2E8F0);
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  font-size: 14px;
+  color: #0F172A;
+  padding: 12px 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  min-height: 44px;
+}
+
+.plain-text-input:focus {
+  border-color: #2563EB;
+  border-width: 2px;
+}
+
+.form-section-body ion-textarea {
+  border: 1.5px solid var(--ion-border-color, #E2E8F0);
+  border-radius: 10px;
+  background: #ffffff;
+  margin-top: 4px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+}
