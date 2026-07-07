@@ -71,6 +71,7 @@
   border-radius: 16px;
   padding: 14px 4px;
   transition: transform 200ms ease;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 
 .summary-value {
