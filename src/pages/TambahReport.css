@@ -18,23 +18,29 @@
   margin: 0;
 }
 
-.plain-text-input {
-  display: block;
-  width: 100%;
-  border: 1.5px solid #E2E8F0 !important;
-  border-radius: 10px;
-  outline: none;
-  background: #ffffff;
+.form-section-body input.plain-text-input {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block !important;
+  width: 100% !important;
+  border-top: 1.5px solid #E2E8F0 !important;
+  border-right: 1.5px solid #E2E8F0 !important;
+  border-bottom: 1.5px solid #E2E8F0 !important;
+  border-left: 1.5px solid #E2E8F0 !important;
+  border-radius: 10px !important;
+  outline: none !important;
+  background: #ffffff !important;
   font-size: 14px;
   color: #0F172A;
-  padding: 8px 12px;
+  padding: 8px 12px !important;
   font-family: inherit;
   box-sizing: border-box;
   min-height: 38px;
   margin-top: 6px;
+  box-shadow: none !important;
 }
 
-.plain-text-input:focus {
+.form-section-body input.plain-text-input:focus {
   border-color: #2563EB !important;
   border-width: 2px !important;
 }
