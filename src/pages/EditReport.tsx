@@ -18,7 +18,8 @@ import {
 } from '@ionic/react';
 import Header from '../components/Header';
 import FormSectionCard from '../components/FormSectionCard';
-import StatusInfoPopover from '../components/StatusInfoPopover';
+import StatusInfoModal from '../components/StatusInfoModal';
+import StatusPreviewCard from '../components/StatusPreviewCard';
 import SchoolAutocomplete from '../components/SchoolAutocomplete';
 import ComboPriceInput from '../components/ComboPriceInput';
 import type { Report } from '../types/Report';
@@ -234,13 +235,14 @@ const EditReport: React.FC = () => {
 
           <div className="status-label-row">
             <span className="status-label-text">Status</span>
-            <StatusInfoPopover />
           </div>
           <IonItem lines="none">
             <IonSelect
               value={combinedStatus}
               onIonChange={(e) => setCombinedStatus(e.detail.value)}
               interface="popover"
+              fill="outline"
+              className="boxed-select"
             >
               {combinedStatusOptions.map((opt) => (
                 <IonSelectOption key={opt.value} value={opt.value}>
@@ -249,6 +251,12 @@ const EditReport: React.FC = () => {
               ))}
             </IonSelect>
           </IonItem>
+
+          <StatusPreviewCard statusCode={splitStatus(combinedStatus).statusCode} />
+
+          <div className="status-info-trigger-row">
+            <StatusInfoModal />
+          </div>
         </FormSectionCard>
 
         {/* ⏰ PREVIOUS PROJECT */}

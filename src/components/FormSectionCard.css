@@ -54,3 +54,7 @@
 .school-name-item::part(native) {
   overflow: visible;
 }
+
+.status-info-trigger-row {
+  margin-top: 6px;
+}

@@ -1,0 +1,58 @@
+.status-info-trigger {
+  --color: #2563EB;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  text-transform: none;
+}
+
+.status-info-modal {
+  --border-radius: 20px 20px 0 0;
+}
+
+.status-info-modal-content {
+  --background: #F8FAFC;
+  padding: 16px;
+}
+
+.status-info-modal-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  animation: statusCardFadeIn 250ms ease;
+}
+
+.status-info-modal-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.status-info-modal-code {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.status-info-modal-desc {
+  font-size: 13px;
+  color: #334155;
+  margin: 0;
+  line-height: 1.5;
+}
+
+@keyframes statusCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

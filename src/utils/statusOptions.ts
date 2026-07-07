@@ -1,4 +1,5 @@
 import type { StatusCode, StatusTemperature } from '../types/Report';
+import { statusMetaMap } from './statusMeta';
 
 export const statusCodes: StatusCode[] = ['OF', 'FU1', 'FU2', 'C', 'ND'];
 export const statusTemperatures: StatusTemperature[] = ['Cold', 'Warm', 'Hot'];
@@ -10,11 +11,10 @@ export interface CombinedStatusOption {
   statusTemperature: StatusTemperature;
 }
 
-/** All 15 combinations (5 status codes x 3 temperatures) as one flat dropdown list */
 export const combinedStatusOptions: CombinedStatusOption[] = statusCodes.flatMap((code) =>
   statusTemperatures.map((temp) => ({
     value: `${code}|${temp}`,
-    label: `${code} - ${temp}`,
+    label: `${statusMetaMap[code].emoji} ${code} - ${temp}`,
     statusCode: code,
     statusTemperature: temp,
   }))
