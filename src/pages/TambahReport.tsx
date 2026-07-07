@@ -42,8 +42,7 @@ const TambahReport: React.FC = () => {
   const [prevSpesifikasi, setPrevSpesifikasi] = useState('');
   const [prevProblem, setPrevProblem] = useState('');
 
-  // Next Project
-  const [nextVendor] = useState('');
+  // Next Project (tanpa Vendor)
   const [nextHarga, setNextHarga] = useState('');
   const [nextJumlah, setNextJumlah] = useState('');
   const [nextSpesifikasi, setNextSpesifikasi] = useState('');
@@ -89,8 +88,8 @@ const TambahReport: React.FC = () => {
         spesifikasi: prevSpesifikasi,
         problem: prevProblem,
       },
-     nextProject: {
-        vendor: nextVendor,
+      nextProject: {
+        vendor: '',
         harga: nextHarga,
         jumlah: nextJumlah,
         spesifikasi: nextSpesifikasi,
@@ -125,9 +124,9 @@ const TambahReport: React.FC = () => {
         {/* 🏫 INFORMASI SEKOLAH */}
         <FormSectionCard title="🏫 INFORMASI SEKOLAH">
           <IonItem lines="none" className="school-name-item">
-  <IonLabel position="stacked">Nama Sekolah</IonLabel>
-  <SchoolAutocomplete value={schoolName} onChange={setSchoolName} />
-</IonItem>
+            <IonLabel position="stacked">Nama Sekolah</IonLabel>
+            <SchoolAutocomplete value={schoolName} onChange={setSchoolName} />
+          </IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">by Chat / Visit</IonLabel>
@@ -186,6 +185,7 @@ const TambahReport: React.FC = () => {
               className="plain-text-input"
               value={prevVendor}
               onChange={(e) => setPrevVendor(e.target.value)}
+              placeholder="Contoh: MAVIS"
             />
           </IonItem>
           <IonItem lines="none">
@@ -198,9 +198,10 @@ const TambahReport: React.FC = () => {
               className="plain-text-input"
               value={prevJumlah}
               onChange={(e) => setPrevJumlah(e.target.value)}
+              placeholder="Contoh: 1.650 eks"
             />
           </IonItem>
-            <IonItem lines="none">
+          <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
             <input
               className="plain-text-input"
@@ -220,7 +221,7 @@ const TambahReport: React.FC = () => {
           </IonItem>
         </FormSectionCard>
 
-        {/* 💡 NEXT PROJECT */}
+        {/* 💡 NEXT PROJECT (tanpa Vendor) */}
         <FormSectionCard title="💡 NEXT PROJECT">
           <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
@@ -237,7 +238,7 @@ const TambahReport: React.FC = () => {
           </IonItem>
           <IonItem lines="none">
             <IonLabel position="stacked">Jumlah</IonLabel>
-            <input 
+            <input
               className="plain-text-input"
               value={nextJumlah}
               onChange={(e) => setNextJumlah(e.target.value)}

@@ -6,7 +6,6 @@ import {
   IonItem,
   IonLabel,
   IonTextarea,
-  IonInput,
   IonSelect,
   IonSelectOption,
   IonButton,
@@ -35,6 +34,7 @@ const EditReport: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [originalCreatedAt, setOriginalCreatedAt] = useState('');
+  const [originalNextVendor, setOriginalNextVendor] = useState('');
 
   // Informasi Sekolah
   const [schoolName, setSchoolName] = useState('');
@@ -50,8 +50,7 @@ const EditReport: React.FC = () => {
   const [prevSpesifikasi, setPrevSpesifikasi] = useState('');
   const [prevProblem, setPrevProblem] = useState('');
 
-  // Next Project
-  const [nextVendor, setNextVendor] = useState('');
+  // Next Project (tanpa Vendor di form, tapi tetap disimpan dari data lama)
   const [nextHarga, setNextHarga] = useState('');
   const [nextJumlah, setNextJumlah] = useState('');
   const [nextSpesifikasi, setNextSpesifikasi] = useState('');
@@ -87,7 +86,8 @@ const EditReport: React.FC = () => {
       setPrevJumlah(existing.previousProject.jumlah);
       setPrevSpesifikasi(existing.previousProject.spesifikasi);
       setPrevProblem(existing.previousProject.problem);
-      setNextVendor(existing.nextProject.vendor);
+
+      setOriginalNextVendor(existing.nextProject.vendor);
       setNextHarga(existing.nextProject.harga);
       setNextJumlah(existing.nextProject.jumlah);
       setNextSpesifikasi(existing.nextProject.spesifikasi);
@@ -139,7 +139,7 @@ const EditReport: React.FC = () => {
         problem: prevProblem,
       },
       nextProject: {
-        vendor: nextVendor,
+        vendor: originalNextVendor,
         harga: nextHarga,
         jumlah: nextJumlah,
         spesifikasi: nextSpesifikasi,
@@ -198,26 +198,26 @@ const EditReport: React.FC = () => {
         {/* 🏫 INFORMASI SEKOLAH */}
         <FormSectionCard title="🏫 INFORMASI SEKOLAH">
           <IonItem lines="none" className="school-name-item">
-  <IonLabel position="stacked">Nama Sekolah</IonLabel>
-  <SchoolAutocomplete value={schoolName} onChange={setSchoolName} />
-</IonItem>
+            <IonLabel position="stacked">Nama Sekolah</IonLabel>
+            <SchoolAutocomplete value={schoolName} onChange={setSchoolName} />
+          </IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">by Chat / Visit</IonLabel>
-            <IonInput
+            <input
               className="plain-text-input"
               value={byChatVisit}
+              onChange={(e) => setByChatVisit(e.target.value)}
               placeholder="Chat atau Visit"
-              onIonInput={(e) => setByChatVisit(e.detail.value ?? '')}
             />
           </IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">Product Offer</IonLabel>
-            <IonInput
+            <input
               className="plain-text-input"
               value={productOffer}
-              onIonInput={(e) => setProductOffer(e.detail.value ?? '')}
+              onChange={(e) => setProductOffer(e.target.value)}
               placeholder="Produk yang ditawarkan"
             />
           </IonItem>
@@ -287,14 +287,14 @@ const EditReport: React.FC = () => {
           </IonItem>
         </FormSectionCard>
 
-        {/* 💡 NEXT PROJECT */}
+        {/* 💡 NEXT PROJECT (tanpa Vendor) */}
         <FormSectionCard title="💡 NEXT PROJECT">
           <IonItem lines="none">
-            <IonLabel position="stacked">Vendor</IonLabel>
+            <IonLabel position="stacked">Spesifikasi</IonLabel>
             <input
               className="plain-text-input"
-              value={nextVendor}
-              onChange={(e) => setNextVendor(e.target.value)}
+              value={nextSpesifikasi}
+              onChange={(e) => setNextSpesifikasi(e.target.value)}
             />
           </IonItem>
           <IonItem lines="none">
@@ -307,14 +307,6 @@ const EditReport: React.FC = () => {
               className="plain-text-input"
               value={nextJumlah}
               onChange={(e) => setNextJumlah(e.target.value)}
-            />
-          </IonItem>
-          <IonItem lines="none">
-            <IonLabel position="stacked">Spesifikasi</IonLabel>
-            <input
-              className="plain-text-input"
-              value={nextSpesifikasi}
-              onChange={(e) => setNextSpesifikasi(e.target.value)}
             />
           </IonItem>
           <IonItem lines="none">
