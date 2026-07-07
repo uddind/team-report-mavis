@@ -1,47 +1,27 @@
-.plain-text-input {
-  width: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 14px;
-  color: #0F172A;
-  padding: 8px 0;
-  font-family: inherit;
+.tambah-report-content {
+  --background: #F8FAFC;
+}
+
+.tambah-report-content ion-card {
+  margin: 12px;
+}
+
+.tambah-report-actions {
+  display: flex;
+  gap: 12px;
+  padding: 8px 12px 24px 12px;
+}
+
+.tambah-report-actions ion-button {
+  --border-radius: var(--app-radius-sm, 10px);
+  flex: 1;
+  margin: 0;
 }
 
 .plain-text-input {
+  display: block;
   width: 100%;
-  border: 1.5px solid var(--ion-border-color, #E2E8F0);
-  border-radius: 10px;
-  outline: none;
-  background: #ffffff;
-  font-size: 14px;
-  color: #0F172A;
-  padding: 12px 14px;
-  font-family: inherit;
-  box-sizing: border-box;
-  min-height: 44px;
-}
-
-.plain-text-input:focus {
-  border-color: #2563EB;
-  border-width: 2px;
-}
-
-.form-section-body ion-textarea {
-  border: 1.5px solid var(--ion-border-color, #E2E8F0);
-  border-radius: 10px;
-  background: #ffffff;
-  margin-top: 4px;
-  --padding-start: 14px;
-  --padding-end: 14px;
-  --padding-top: 12px;
-  --padding-bottom: 12px;
-}
-
-.plain-text-input {
-  width: 100%;
-  border: 1.5px solid var(--ion-border-color, #E2E8F0);
+  border: 1.5px solid #E2E8F0 !important;
   border-radius: 10px;
   outline: none;
   background: #ffffff;
@@ -55,8 +35,43 @@
 }
 
 .plain-text-input:focus {
-  border-color: #2563EB;
-  border-width: 2px;
+  border-color: #2563EB !important;
+  border-width: 2px !important;
+}
+
+.plain-text-input::placeholder {
+  color: #94A3B8;
+}
+
+.form-section-body ion-textarea {
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  background: #ffffff;
+  margin-top: 6px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+}
+
+.boxed-select {
+  width: 100%;
+  --border-radius: 10px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  min-height: 38px;
+}
+
+.datetime-box {
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 6px 10px;
+  margin-top: 6px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .school-name-item .school-autocomplete-wrapper {
