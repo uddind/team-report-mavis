@@ -167,6 +167,8 @@ const TambahReport: React.FC = () => {
               value={combinedStatus}
               onIonChange={(e) => setCombinedStatus(e.detail.value)}
               interface="popover"
+              fill="outline"
+              className="boxed-select"
             >
               {combinedStatusOptions.map((opt) => (
                 <IonSelectOption key={opt.value} value={opt.value}>
@@ -260,32 +262,36 @@ const TambahReport: React.FC = () => {
         <FormSectionCard title="🗓 APPOINTMENT">
           <IonItem lines="none">
             <IonLabel position="stacked">Tanggal</IonLabel>
-            <IonDatetimeButton datetime="tanggal-picker" />
-            <IonModal keepContentsMounted>
-              <IonDatetime
-                id="tanggal-picker"
-                presentation="date"
-                onIonChange={(e) => {
-                  const val = e.detail.value;
-                  setTanggal(typeof val === 'string' ? val.split('T')[0] : '');
-                }}
-              />
-            </IonModal>
+            <div className="datetime-box">
+              <IonDatetimeButton datetime="tanggal-picker" />
+              <IonModal keepContentsMounted>
+                <IonDatetime
+                  id="tanggal-picker"
+                  presentation="date"
+                  onIonChange={(e) => {
+                    const val = e.detail.value;
+                    setTanggal(typeof val === 'string' ? val.split('T')[0] : '');
+                  }}
+                />
+              </IonModal>
+            </div>
           </IonItem>
 
           <IonItem lines="none">
             <IonLabel position="stacked">Jam</IonLabel>
-            <IonDatetimeButton datetime="jam-picker" />
-            <IonModal keepContentsMounted>
-              <IonDatetime
-                id="jam-picker"
-                presentation="time"
-                onIonChange={(e) => {
-                  const val = e.detail.value;
-                  setJam(typeof val === 'string' ? val : '');
-                }}
-              />
-            </IonModal>
+            <div className="datetime-box">
+              <IonDatetimeButton datetime="jam-picker" />
+              <IonModal keepContentsMounted>
+                <IonDatetime
+                  id="jam-picker"
+                  presentation="time"
+                  onIonChange={(e) => {
+                    const val = e.detail.value;
+                    setJam(typeof val === 'string' ? val : '');
+                  }}
+                />
+              </IonModal>
+            </div>
           </IonItem>
 
           <IonItem lines="none">
