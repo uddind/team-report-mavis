@@ -32,59 +32,44 @@ import TambahReport from './pages/TambahReport';
 import DetailReport from './pages/DetailReport';
 import EditReport from './pages/EditReport';
 import Profile from './pages/Profile';
-import Login from './pages/Login';
+import LoginModal from './components/LoginModal';
 
 setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
+      <IonTabs>
+        <IonRouterOutlet>
+          <Route exact path="/beranda" component={Beranda} />
+          <Route exact path="/tambah-report" component={TambahReport} />
+          <Route exact path="/laporan" component={Laporan} />
+          <Route exact path="/detail-report/:id" component={DetailReport} />
+          <Route exact path="/edit-report/:id" component={EditReport} />
+          <Route exact path="/profile" component={Profile} />
+          <Route exact path="/">
+            <Redirect to="/beranda" />
+          </Route>
+        </IonRouterOutlet>
 
-      {/* Login berada di luar Tabs */}
-      <IonRouterOutlet id="main">
-        <Route exact path="/login" component={Login} />
+        <IonTabBar slot="bottom">
+          <IonTabButton tab="beranda" href="/beranda">
+            <IonIcon icon={homeOutline} />
+            <IonLabel>BERANDA</IonLabel>
+          </IonTabButton>
 
-        <Route path="/">
-          <IonTabs>
+          <IonTabButton tab="tambah-report" href="/tambah-report">
+            <IonIcon icon={addCircle} />
+          </IonTabButton>
 
-            <IonRouterOutlet>
+          <IonTabButton tab="laporan" href="/laporan">
+            <IonIcon icon={documentTextOutline} />
+            <IonLabel>LAPORAN</IonLabel>
+          </IonTabButton>
+        </IonTabBar>
+      </IonTabs>
 
-              <Route exact path="/beranda" component={Beranda} />
-              <Route exact path="/tambah-report" component={TambahReport} />
-              <Route exact path="/laporan" component={Laporan} />
-              <Route exact path="/detail-report/:id" component={DetailReport} />
-              <Route exact path="/edit-report/:id" component={EditReport} />
-              <Route exact path="/profile" component={Profile} />
-
-              <Route exact path="/">
-                <Redirect to="/login" />
-              </Route>
-
-            </IonRouterOutlet>
-
-            <IonTabBar slot="bottom">
-
-              <IonTabButton tab="beranda" href="/beranda">
-                <IonIcon icon={homeOutline} />
-                <IonLabel>BERANDA</IonLabel>
-              </IonTabButton>
-
-              <IonTabButton tab="tambah-report" href="/tambah-report">
-                <IonIcon icon={addCircle} />
-              </IonTabButton>
-
-              <IonTabButton tab="laporan" href="/laporan">
-                <IonIcon icon={documentTextOutline} />
-                <IonLabel>LAPORAN</IonLabel>
-              </IonTabButton>
-
-            </IonTabBar>
-
-          </IonTabs>
-        </Route>
-
-      </IonRouterOutlet>
-
+      <LoginModal isOpen={true} />
     </IonReactRouter>
   </IonApp>
 );
