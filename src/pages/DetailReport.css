@@ -48,30 +48,4 @@
   margin-top: 40px;
 }
 
-.detail-back-row {
-  padding: 10px 12px 4px 12px;
-}
 
-.modern-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: none;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #2563EB;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-  cursor: pointer;
-  transition: transform 200ms ease;
-}
-
-.modern-back-btn:hover {
-  transform: translateX(-2px);
-}
-
-.modern-back-btn ion-icon {
-  font-size: 16px;
-}

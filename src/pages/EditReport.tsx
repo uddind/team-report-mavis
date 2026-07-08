@@ -26,6 +26,7 @@ import type { Report } from '../types/Report';
 import { getReportById, updateReport } from '../services/reportService';
 import { combinedStatusOptions, combineStatus, splitStatus } from '../utils/statusOptions';
 import './EditReport.css';
+import CollapsibleSectionCard from '../components/CollapsibleSectionCard';
 
 const EditReport: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -324,7 +325,7 @@ const EditReport: React.FC = () => {
         </FormSectionCard>
 
         {/* 🗓 APPOINTMENT */}
-        <FormSectionCard title="🗓 APPOINTMENT">
+        <CollapsibleSectionCard title="🗓 APPOINTMENT">
           <IonItem lines="none">
             <IonLabel position="stacked">Tanggal</IonLabel>
             <IonDatetimeButton datetime="edit-tanggal-picker" />
@@ -361,10 +362,10 @@ const EditReport: React.FC = () => {
             <IonLabel position="stacked">Catatan</IonLabel>
             <IonTextarea value={catatan} onIonInput={(e) => setCatatan(e.detail.value ?? '')} autoGrow />
           </IonItem>
-        </FormSectionCard>
+        </CollapsibleSectionCard>
 
         {/* 🔑 INFORMASI LAIN */}
-        <FormSectionCard title="🔑 INFORMASI LAIN">
+        <CollapsibleSectionCard title="🔑 INFORMASI LAIN">
           <IonItem lines="none">
             <IonTextarea
               value={informasiLain}
@@ -374,7 +375,7 @@ const EditReport: React.FC = () => {
               placeholder="Tulis informasi tambahan di sini..."
             />
           </IonItem>
-        </FormSectionCard>
+        </CollapsibleSectionCard>
 
         {/* Bottom Buttons */}
         <div className="edit-report-actions">
