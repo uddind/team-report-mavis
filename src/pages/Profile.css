@@ -2,11 +2,17 @@
   --background: #F8FAFC;
 }
 
-.profile-back-row {
+.profile-header-row {
   padding: 8px 8px 0 8px;
 }
 
-.profile-avatar-section {
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+.profile-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -14,52 +20,170 @@
 }
 
 .profile-avatar-circle {
-  width: 84px;
-  height: 84px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: #2563EB;
   color: #ffffff;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--app-shadow-card, 0 4px 12px rgba(15, 23, 42, 0.08));
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
-.profile-avatar-placeholder {
-  font-size: 84px;
-  color: #94A3B8;
-}
-
-.profile-avatar-name {
-  margin: 10px 0 2px 0;
-  font-size: 16px;
+.profile-hero-name {
+  margin: 12px 0 2px 0;
+  font-size: 17px;
   font-weight: 700;
   color: #0F172A;
 }
 
-.profile-avatar-role {
-  margin: 0;
-  font-size: 13px;
+.profile-hero-role {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2563EB;
+}
+
+.profile-hero-email {
+  margin: 4px 0 0 0;
+  font-size: 12.5px;
   color: #64748B;
 }
 
-.profile-content ion-card {
-  margin: 12px;
+.profile-card,
+.profile-list-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+  margin: 0 12px 12px 12px;
+  padding: 16px;
 }
 
-.profile-actions {
-  padding: 8px 12px 24px 12px;
+.profile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
-.profile-actions ion-button {
-  --border-radius: var(--app-radius-sm, 10px);
+.profile-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.google-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #F1F5F9;
+  color: #64748B;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.google-badge.connected {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.google-connected-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.google-icon {
+  font-size: 26px;
+  color: #EA4335;
+  flex-shrink: 0;
+}
+
+.google-connected-email {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0F172A;
   margin: 0;
 }
 
-.loading-state {
+.google-connected-date {
+  font-size: 11.5px;
+  color: #94A3B8;
+  margin: 2px 0 0 0;
+}
+
+.google-hint-text {
+  font-size: 12.5px;
+  color: #64748B;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.connect-google-btn {
+  --border-radius: 12px;
+  --border-color: #E2E8F0;
+  --color: #0F172A;
+  font-weight: 600;
+}
+
+.profile-list-item {
   display: flex;
-  justify-content: center;
-  padding: 40px 0;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 1px solid #F1F5F9;
+  cursor: pointer;
+}
+
+.profile-list-item:last-child {
+  border-bottom: none;
+}
+
+.profile-list-icon {
+  font-size: 18px;
+  color: #64748B;
+}
+
+.profile-list-label {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.profile-list-arrow {
+  font-size: 16px;
+  color: #CBD5E1;
+}
+
+.profile-list-version {
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+.no-arrow {
+  cursor: default;
+}
+
+.profile-logout-row {
+  padding: 4px 12px 24px 12px;
+}
+
+.profile-modal-content {
+  --background: #F8FAFC;
+  padding: 12px 16px;
+}
+
+.fade-in {
+  animation: fadeInUp 250ms ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }

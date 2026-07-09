@@ -1,35 +1,34 @@
-import { Preferences } from '@capacitor/preferences';
+import { supabase } from './supabaseClient';
 import type { Profile } from '../types/Profile';
-import { createEmptyProfile } from '../types/Profile';
 
-const PROFILE_STORAGE_KEY = 'teamreport_mavis_profile';
-
-/**
- * Returns the saved profile, or an empty default profile
- * if nothing has been saved yet.
- */
 export async function getProfile(): Promise<Profile> {
-  try {
-    const result = await Preferences.get({ key: PROFILE_STORAGE_KEY });
-    if (!result.value) return createEmptyProfile();
-    return JSON.parse(result.value) as Profile;
-  } catch (error) {
-    console.error('profileService: failed to read profile', error);
-    return createEmptyProfile();
-  }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { name: '', email: '', phone: '', jabatan: '' };
+
+  const { data } = await supabase
+    .from('profiles')
+    .select('full_name, email, phone, jabatan')
+    .eq('id', user.id)
+    .single();
+
+  return {
+    name: data?.full_name ?? '',
+    email: data?.email ?? user.email ?? '',
+    phone: data?.phone ?? '',
+    jabatan: data?.jabatan ?? '',
+  };
 }
 
-/**
- * Saves/overwrites the profile.
- */
 export async function saveProfile(profile: Profile): Promise<void> {
-  try {
-    await Preferences.set({
-      key: PROFILE_STORAGE_KEY,
-      value: JSON.stringify(profile),
-    });
-  } catch (error) {
-    console.error('profileService: failed to save profile', error);
-    throw error;
-  }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Belum login');
+
+  await supabase.from('profiles').upsert({
+    id: user.id,
+    full_name: profile.name,
+    email: profile.email,
+    phone: profile.phone,
+    jabatan: profile.jabatan,
+    updated_at: new Date().toISOString(),
+  });
 }

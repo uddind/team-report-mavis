@@ -6,14 +6,15 @@ import {
   IonIcon,
   IonInput,
   IonItem,
-  IonLabel,
+  IonSelect,
+  IonSelectOption,
   useIonToast,
 } from '@ionic/react';
-import { logoGoogle, mailOutline, lockClosedOutline, personOutline } from 'ionicons/icons';
+import { logoGoogle, mailOutline, lockClosedOutline, briefcaseOutline } from 'ionicons/icons';
 import { supabase } from '../services/supabaseClient';
 import './LoginModal.css';
 
-type Mode = 'login' | 'register';
+const jabatanOptions = ['Marketing', 'Sales Executive', 'Supervisor', 'Manager', 'Lainnya'];
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -21,10 +22,9 @@ interface LoginModalProps {
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
   const [presentToast] = useIonToast();
-  const [mode, setMode] = useState<Mode>('login');
   const [loading, setLoading] = useState(false);
 
-  const [name, setName] = useState('');
+  const [jabatan, setJabatan] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -38,31 +38,25 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      presentToast({ message: error.message, duration: 2500, color: 'danger', position: 'top' });
-    }
-  };
 
-  const handleRegister = async () => {
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      presentToast({ message: 'Semua field wajib diisi', duration: 2000, color: 'danger', position: 'top' });
-      return;
-    }
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: name } },
-    });
-    setLoading(false);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
     if (error) {
+      setLoading(false);
       presentToast({ message: error.message, duration: 2500, color: 'danger', position: 'top' });
       return;
     }
-    presentToast({ message: 'Akun berhasil dibuat! Silakan masuk.', duration: 2500, color: 'success', position: 'top' });
-    setMode('login');
+
+    // Kalau user pilih Jabatan di layar login, simpan ke profil (berguna terutama
+    // untuk akun yang dibuat manual oleh admin di Supabase, yang belum punya jabatan).
+    if (jabatan && data.user) {
+      await supabase
+        .from('profiles')
+        .update({ jabatan, updated_at: new Date().toISOString() })
+        .eq('id', data.user.id);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -71,31 +65,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
         <div className="login-modal-inner fade-in">
           <div className="login-logo">📋</div>
           <h1 className="login-title">Mavis Report System</h1>
-          <p className="login-desc">
-            {mode === 'login'
-              ? 'Silakan masuk untuk menggunakan aplikasi.'
-              : 'Buat akun baru untuk mulai menggunakan aplikasi.'}
-          </p>
-
-          <IonButton expand="block" className="google-btn" onClick={handleGoogleLogin}>
-            <IonIcon icon={logoGoogle} slot="start" />
-            Masuk dengan Google
-          </IonButton>
-
-          <div className="login-divider">
-            <span>atau</span>
-          </div>
-
-          {mode === 'register' && (
-            <IonItem lines="none" className="login-field">
-              <IonIcon icon={personOutline} slot="start" className="login-field-icon" />
-              <IonInput
-                value={name}
-                onIonInput={(e) => setName(e.detail.value ?? '')}
-                placeholder="Nama Lengkap"
-              />
-            </IonItem>
-          )}
+          <p className="login-desc">Silakan masuk untuk menggunakan aplikasi.</p>
 
           <IonItem lines="none" className="login-field">
             <IonIcon icon={mailOutline} slot="start" className="login-field-icon" />
@@ -117,29 +87,34 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
             />
           </IonItem>
 
-          {mode === 'login' ? (
-            <IonButton expand="block" className="primary-btn" onClick={handleEmailLogin} disabled={loading}>
-              Masuk
-            </IonButton>
-          ) : (
-            <IonButton expand="block" className="primary-btn" onClick={handleRegister} disabled={loading}>
-              Daftar
-            </IonButton>
-          )}
+          <IonItem lines="none" className="login-field">
+            <IonIcon icon={briefcaseOutline} slot="start" className="login-field-icon" />
+            <IonSelect
+              value={jabatan}
+              onIonChange={(e) => setJabatan(e.detail.value)}
+              interface="popover"
+              placeholder="Pilih Jabatan"
+            >
+              {jabatanOptions.map((j) => (
+                <IonSelectOption key={j} value={j}>
+                  {j}
+                </IonSelectOption>
+              ))}
+            </IonSelect>
+          </IonItem>
 
-          <p className="login-switch">
-            {mode === 'login' ? (
-              <>
-                Belum punya akun?{' '}
-                <span onClick={() => setMode('register')}>Daftar di sini</span>
-              </>
-            ) : (
-              <>
-                Sudah punya akun?{' '}
-                <span onClick={() => setMode('login')}>Masuk di sini</span>
-              </>
-            )}
-          </p>
+          <IonButton expand="block" className="primary-btn" onClick={handleEmailLogin} disabled={loading}>
+            MASUK
+          </IonButton>
+
+          <div className="login-divider">
+            <span>atau</span>
+          </div>
+
+          <IonButton expand="block" className="google-btn" onClick={handleGoogleLogin}>
+            <IonIcon icon={logoGoogle} slot="start" />
+            MASUK DENGAN GOOGLE
+          </IonButton>
         </div>
       </IonContent>
     </IonModal>
