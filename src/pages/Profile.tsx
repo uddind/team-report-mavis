@@ -34,7 +34,7 @@ import { isAdminEmail } from '../utils/adminEmails';
 import './Profile.css';
 
 // Pilihan kota untuk Area
-const areaOptions = ['Blitar', 'Kediri', 'Malang', 'Madiun', 'Nganjuk', 'Ngawi', 'Pacitan', 'Ponorogo', 'Trenggalek', 'Tulungagung'];
+const areaOptions = ['Blitar', 'Kediri', 'Malang', ];
 
 const ProfilePage: React.FC = () => {
   const router = useIonRouter();

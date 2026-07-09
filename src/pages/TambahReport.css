@@ -129,3 +129,21 @@
   word-wrap: break-word !important;
   overflow: break-word !important;
 }
+
+.input-icon-top {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  font-size: 16px;
+  color: #94A3B8;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.wrap-textarea {
+  margin-top: 0 !important;
+}
+
+.wrap-textarea.has-icon {
+  --padding-start: 36px;
+}

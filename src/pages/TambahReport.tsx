@@ -137,11 +137,13 @@ const TambahReport: React.FC = () => {
           <IonItem lines="none">
             <IonLabel position="stacked">by Chat / Visit</IonLabel>
             <div className="input-with-icon">
-              <IonIcon icon={chatbubbleOutline} className="input-icon" />
-              <input
-                className="plain-text-input has-icon"
+              <IonIcon icon={chatbubbleOutline} className="input-icon-top" />
+              <IonTextarea
+                className="wrap-textarea has-icon"
+                rows={1}
+                autoGrow
                 value={byChatVisit}
-                onChange={(e) => setByChatVisit(e.target.value)}
+                onIonInput={(e) => setByChatVisit(e.detail.value ?? '')}
                 placeholder="Chat atau Visit"
               />
             </div>
@@ -150,11 +152,13 @@ const TambahReport: React.FC = () => {
           <IonItem lines="none">
             <IonLabel position="stacked">Product Offer</IonLabel>
             <div className="input-with-icon">
-              <IonIcon icon={pricetagOutline} className="input-icon" />
-              <input
-                className="plain-text-input has-icon"
+              <IonIcon icon={pricetagOutline} className="input-icon-top" />
+              <IonTextarea
+                className="wrap-textarea has-icon"
+                rows={1}
+                autoGrow
                 value={productOffer}
-                onChange={(e) => setProductOffer(e.target.value)}
+                onIonInput={(e) => setProductOffer(e.detail.value ?? '')}
                 placeholder="Produk yang ditawarkan"
               />
             </div>
@@ -163,11 +167,13 @@ const TambahReport: React.FC = () => {
           <IonItem lines="none">
             <IonLabel position="stacked">Respon</IonLabel>
             <div className="input-with-icon">
-              <IonIcon icon={chatboxEllipsesOutline} className="input-icon" />
-              <input
-                className="plain-text-input has-icon"
+              <IonIcon icon={chatboxEllipsesOutline} className="input-icon-top" />
+              <IonTextarea
+                className="wrap-textarea has-icon"
+                rows={1}
+                autoGrow
                 value={respon}
-                onChange={(e) => setRespon(e.target.value)}
+                onIonInput={(e) => setRespon(e.detail.value ?? '')}
                 placeholder="Respon dari sekolah"
               />
             </div>
@@ -219,11 +225,13 @@ const TambahReport: React.FC = () => {
           <IonItem lines="none">
             <IonLabel position="stacked">Jumlah</IonLabel>
             <div className="input-with-icon">
-              <IonIcon icon={cubeOutline} className="input-icon" />
-              <input
-                className="plain-text-input has-icon"
+              <IonIcon icon={cubeOutline} className="input-icon-top" />
+              <IonTextarea
+                className="wrap-textarea has-icon"
+                rows={1}
+                autoGrow
                 value={prevJumlah}
-                onChange={(e) => setPrevJumlah(e.target.value)}
+                onIonInput={(e) => setPrevJumlah(e.detail.value ?? '')}
                 placeholder="Contoh: 1.650 eks"
               />
             </div>
@@ -231,11 +239,13 @@ const TambahReport: React.FC = () => {
           <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
             <div className="input-with-icon">
-              <IonIcon icon={documentTextOutline} className="input-icon" />
-              <input
-                className="plain-text-input has-icon"
+              <IonIcon icon={documentTextOutline} className="input-icon-top" />
+              <IonTextarea
+                className="wrap-textarea has-icon"
+                rows={1}
+                autoGrow
                 value={prevSpesifikasi}
-                onChange={(e) => setPrevSpesifikasi(e.target.value)}
+                onIonInput={(e) => setPrevSpesifikasi(e.detail.value ?? '')}
                 placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto"
               />
             </div>
@@ -257,11 +267,13 @@ const TambahReport: React.FC = () => {
           <IonItem lines="none">
             <IonLabel position="stacked">Spesifikasi</IonLabel>
             <div className="input-with-icon">
-              <IonIcon icon={documentTextOutline} className="input-icon" />
-              <input
-                className="plain-text-input has-icon"
+              <IonIcon icon={documentTextOutline} className="input-icon-top" />
+              <IonTextarea
+                className="wrap-textarea has-icon"
+                rows={1}
+                autoGrow
                 value={nextSpesifikasi}
-                onChange={(e) => setNextSpesifikasi(e.target.value)}
+                onIonInput={(e) => setNextSpesifikasi(e.detail.value ?? '')}
                 placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto (masih sama seperti tahun lalu)"
               />
             </div>
@@ -273,11 +285,13 @@ const TambahReport: React.FC = () => {
           <IonItem lines="none">
             <IonLabel position="stacked">Jumlah</IonLabel>
             <div className="input-with-icon">
-              <IonIcon icon={cubeOutline} className="input-icon" />
-              <input
-                className="plain-text-input has-icon"
+              <IonIcon icon={cubeOutline} className="input-icon-top" />
+              <IonTextarea
+                className="wrap-textarea has-icon"
+                rows={1}
+                autoGrow
                 value={nextJumlah}
-                onChange={(e) => setNextJumlah(e.target.value)}
+                onIonInput={(e) => setNextJumlah(e.detail.value ?? '')}
                 placeholder="Contoh: 1.650 eks"
               />
             </div>
