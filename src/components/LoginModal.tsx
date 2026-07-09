@@ -14,7 +14,7 @@ import { logoGoogle, mailOutline, lockClosedOutline, briefcaseOutline } from 'io
 import { supabase } from '../services/supabaseClient';
 import './LoginModal.css';
 
-const jabatanOptions = ['Marketing', 'Sales Executive', 'Supervisor', 'Manager', 'Lainnya'];
+const jabatanOptions = ['Marketing', 'Sales Executive', 'Supervisor', 'Manager', 'Admin', ];
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -39,7 +39,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
     }
     setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
 
     if (error) {
       setLoading(false);

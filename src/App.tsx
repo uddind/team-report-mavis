@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
@@ -11,6 +12,7 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { homeOutline, addCircle, documentTextOutline } from 'ionicons/icons';
+import { Session } from '@supabase/supabase-js';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -34,44 +36,69 @@ import EditReport from './pages/EditReport';
 import Profile from './pages/Profile';
 import LoginModal from './components/LoginModal';
 
+import { supabase } from './services/supabaseClient';
+
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route exact path="/beranda" component={Beranda} />
-          <Route exact path="/tambah-report" component={TambahReport} />
-          <Route exact path="/laporan" component={Laporan} />
-          <Route exact path="/detail-report/:id" component={DetailReport} />
-          <Route exact path="/edit-report/:id" component={EditReport} />
-          <Route exact path="/profile" component={Profile} />
-          <Route exact path="/">
-            <Redirect to="/beranda" />
-          </Route>
-        </IonRouterOutlet>
+const App: React.FC = () => {
+  const [session, setSession] = useState<Session | null>(null);
 
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="beranda" href="/beranda">
-            <IonIcon icon={homeOutline} />
-            <IonLabel>BERANDA</IonLabel>
-          </IonTabButton>
+  useEffect(() => {
+    // Cek session saat aplikasi dibuka
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+    });
 
-          <IonTabButton tab="tambah-report" href="/tambah-report">
-            <IonIcon icon={addCircle} />
-          </IonTabButton>
+    // Dengarkan perubahan login/logout
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
 
-          <IonTabButton tab="laporan" href="/laporan">
-            <IonIcon icon={documentTextOutline} />
-            <IonLabel>LAPORAN</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
-      <LoginModal isOpen={true} />
-    </IonReactRouter>
-  </IonApp>
-);
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <IonTabs>
+          <IonRouterOutlet>
+            <Route exact path="/beranda" component={Beranda} />
+            <Route exact path="/tambah-report" component={TambahReport} />
+            <Route exact path="/laporan" component={Laporan} />
+            <Route exact path="/detail-report/:id" component={DetailReport} />
+            <Route exact path="/edit-report/:id" component={EditReport} />
+            <Route exact path="/profile" component={Profile} />
+            <Route exact path="/">
+              <Redirect to="/beranda" />
+            </Route>
+          </IonRouterOutlet>
+
+          <IonTabBar slot="bottom">
+            <IonTabButton tab="beranda" href="/beranda">
+              <IonIcon icon={homeOutline} />
+              <IonLabel>BERANDA</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="tambah-report" href="/tambah-report">
+              <IonIcon icon={addCircle} />
+            </IonTabButton>
+
+            <IonTabButton tab="laporan" href="/laporan">
+              <IonIcon icon={documentTextOutline} />
+              <IonLabel>LAPORAN</IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+
+        {/* Modal hanya muncul jika belum login */}
+        <LoginModal isOpen={!session} />
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;
