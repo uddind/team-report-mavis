@@ -55,3 +55,9 @@
   border-color: #2563EB !important;
   border-width: 2px !important;
 }
+
+.form-section-body ion-textarea textarea {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}

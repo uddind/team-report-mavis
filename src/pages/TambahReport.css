@@ -123,3 +123,9 @@
   margin-right: 2px;
   color: #64748B;
 }
+
+.form-section-body ion-textarea textarea {
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow: break-word !important;
+}

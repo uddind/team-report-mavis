@@ -6,15 +6,11 @@ import {
   IonIcon,
   IonInput,
   IonItem,
-  IonSelect,
-  IonSelectOption,
   useIonToast,
 } from '@ionic/react';
-import { logoGoogle, mailOutline, lockClosedOutline, briefcaseOutline } from 'ionicons/icons';
+import { logoGoogle, mailOutline, lockClosedOutline } from 'ionicons/icons';
 import { supabase } from '../services/supabaseClient';
 import './LoginModal.css';
-
-const jabatanOptions = ['Marketing', 'Sales Executive', 'Supervisor', 'Manager', 'Admin', ];
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -24,7 +20,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
   const [presentToast] = useIonToast();
   const [loading, setLoading] = useState(false);
 
-  const [jabatan, setJabatan] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -39,27 +34,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
     }
     setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
 
-    if (error) {
-      setLoading(false);
-      presentToast({ message: error.message, duration: 2500, color: 'danger', position: 'top' });
-      return;
-    }
-
-    // Kalau user pilih Jabatan di layar login, simpan ke profil (berguna terutama
-    // untuk akun yang dibuat manual oleh admin di Supabase, yang belum punya jabatan).
-    if (jabatan && data.user) {
-      await supabase
-        .from('profiles')
-        .update({ jabatan, updated_at: new Date().toISOString() })
-        .eq('id', data.user.id);
-    }
-
     setLoading(false);
+
+    if (error) {
+      presentToast({ message: error.message, duration: 2500, color: 'danger', position: 'top' });
+    }
   };
 
   return (
@@ -88,22 +72,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
               onIonInput={(e) => setPassword(e.detail.value ?? '')}
               placeholder="Password"
             />
-          </IonItem>
-
-          <IonItem lines="none" className="login-field">
-            <IonIcon icon={briefcaseOutline} slot="start" className="login-field-icon" />
-            <IonSelect
-              value={jabatan}
-              onIonChange={(e) => setJabatan(e.detail.value)}
-              interface="popover"
-              placeholder="Pilih Jabatan"
-            >
-              {jabatanOptions.map((j) => (
-                <IonSelectOption key={j} value={j}>
-                  {j}
-                </IonSelectOption>
-              ))}
-            </IonSelect>
           </IonItem>
 
           <IonButton expand="block" className="primary-btn" onClick={handleEmailLogin} disabled={loading}>

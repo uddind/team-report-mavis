@@ -9,12 +9,11 @@ import {
   IonToolbar,
   IonTitle,
   IonButtons,
-  IonItem,
-  IonLabel,
   IonInput,
   IonSelect,
   IonSelectOption,
   IonSpinner,
+  IonItem,
   useIonRouter,
   useIonToast,
 } from '@ionic/react';
@@ -34,7 +33,8 @@ import { getProfile, saveProfile } from '../services/profileService';
 import { isAdminEmail } from '../utils/adminEmails';
 import './Profile.css';
 
-const jabatanOptions = ['Marketing', 'Sales Executive', 'Supervisor', 'Manager', 'Lainnya'];
+// Pilihan kota untuk Area
+const areaOptions = ['Blitar', 'Kediri', 'Malang', 'Madiun', 'Nganjuk', 'Ngawi', 'Pacitan', 'Ponorogo', 'Trenggalek', 'Tulungagung'];
 
 const ProfilePage: React.FC = () => {
   const router = useIonRouter();
@@ -44,7 +44,7 @@ const ProfilePage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [jabatan, setJabatan] = useState('');
+  const [area, setArea] = useState(''); // State lokal aplikasi menggunakan nama 'area'
 
   const [googleIdentity, setGoogleIdentity] = useState<UserIdentity | null>(null);
   const [connecting, setConnecting] = useState(false);
@@ -54,23 +54,47 @@ const ProfilePage: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const loadAll = async () => {
+const loadAll = async () => {
     setLoading(true);
-    const data = await getProfile();
-    setName(data.name);
-    setEmail(data.email);
-    setPhone(data.phone);
-    setJabatan(data.jabatan);
 
-    const { data: identitiesData } = await supabase.auth.getUserIdentities();
-    const google = identitiesData?.identities.find((i) => i.provider === 'google') ?? null;
-    setGoogleIdentity(google);
+    try {
+      // 1. Ambil data sesi user yang sedang aktif langsung dari Supabase Auth
+      const { data: { user } } = await supabase.auth.getUser();
 
-    setLoading(false);
+      const data = await getProfile();
+      setName(data.name);
+      setPhone(data.phone);
+      setArea((data as any).area || data.jabatan || '');
+
+      // 2. Jika di profile kustom tidak ada email, gunakan email dari akun login utama
+      setEmail(data.email || user?.email || '');
+
+      const { data: identitiesData, error } = await supabase.auth.getUserIdentities();
+      if (error) {
+        console.error('Gagal ambil identities:', error);
+      }
+      const google = identitiesData?.identities.find((i) => i.provider === 'google') ?? null;
+      setGoogleIdentity(google);
+    } catch (err) {
+      console.error('loadAll error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     loadAll();
+
+    // Setelah redirect balik dari Google (proses linking), Supabase butuh
+    // sedikit waktu memproses token di URL — dengarkan perubahan status auth
+    // dan muat ulang data supaya tombol "Putuskan Koneksi" muncul dengan benar.
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
+      loadAll();
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   const initial = name.trim() ? name.trim()[0].toUpperCase() : '';
@@ -86,7 +110,6 @@ const ProfilePage: React.FC = () => {
       presentToast({ message: error.message, duration: 2500, color: 'danger', position: 'top' });
       setConnecting(false);
     }
-    // Setelah ini browser akan redirect ke Google, lalu kembali otomatis
   };
 
   const handleDisconnectGoogle = async () => {
@@ -101,7 +124,16 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleSaveInfo = async () => {
-    await saveProfile({ name, email, phone, jabatan });
+    // Trik Aman: Kirimkan nilai 'area' baik ke properti 'area' maupun 'jabatan' 
+    // agar profileService tidak komplain apa pun strukturnya di database
+    await saveProfile({ 
+      name, 
+      email, 
+      phone, 
+
+      area: area     // mengantisipasi database baru
+    } as any); 
+
     presentToast({ message: 'Profil berhasil disimpan', duration: 2000, color: 'success', position: 'top' });
     setShowInfoModal(false);
   };
@@ -232,7 +264,7 @@ const ProfilePage: React.FC = () => {
           </IonButton>
         </div>
 
-        {/* Modal: Informasi Akun */}
+        {/* Modal Pop-up: Informasi Akun */}
         <IonModal isOpen={showInfoModal} onDidDismiss={() => setShowInfoModal(false)} className="profile-modal">
           <IonHeader className="ion-no-border">
             <IonToolbar>
@@ -244,34 +276,57 @@ const ProfilePage: React.FC = () => {
               </IonButtons>
             </IonToolbar>
           </IonHeader>
-          <IonContent className="profile-modal-content">
+          <IonContent className="profile-modal-content ion-padding">
             <IonItem lines="none" className="login-field">
-              <IonLabel position="stacked">Nama Lengkap</IonLabel>
-              <IonInput value={name} onIonInput={(e) => setName(e.detail.value ?? '')} />
+              <IonInput 
+                label="Nama Lengkap" 
+                labelPlacement="stacked" 
+                value={name} 
+                onIonInput={(e: any) => setName(e.detail.value ?? '')}
+              />
             </IonItem>
+            
             <IonItem lines="none" className="login-field">
-              <IonLabel position="stacked">Email</IonLabel>
-              <IonInput value={email} readonly />
+              <IonInput 
+                label="Email" 
+                labelPlacement="stacked" 
+                value={email} 
+                readonly 
+              />
             </IonItem>
+            
             <IonItem lines="none" className="login-field">
-              <IonLabel position="stacked">No. Telepon</IonLabel>
-              <IonInput value={phone} onIonInput={(e) => setPhone(e.detail.value ?? '')} placeholder="08xxxxxxxxxx" />
+              <IonInput 
+                label="No. Telepon" 
+                labelPlacement="stacked" 
+                value={phone} 
+                onIonInput={(e: any) => setPhone(e.detail.value ?? '')}
+                placeholder="08xxxxxxxxxx" 
+              />
             </IonItem>
+            
+            {/* Pilihan Dropdown Area */}
             <IonItem lines="none" className="login-field">
-              <IonLabel position="stacked">Jabatan</IonLabel>
-              <IonSelect value={jabatan} onIonChange={(e) => setJabatan(e.detail.value)} interface="popover">
-                {jabatanOptions.map((j) => (
-                  <IonSelectOption key={j} value={j}>{j}</IonSelectOption>
+              <IonSelect 
+                label="Area" 
+                labelPlacement="stacked" 
+                value={area} 
+                onIonChange={(e: any) => setArea(e.detail.value)}
+                interface="popover"
+              >
+                {areaOptions.map((a) => (
+                  <IonSelectOption key={a} value={a}>{a}</IonSelectOption>
                 ))}
               </IonSelect>
             </IonItem>
-            <IonButton expand="block" className="primary-btn" onClick={handleSaveInfo}>
+            
+            <IonButton expand="block" className="primary-btn" onClick={handleSaveInfo} style={{ marginTop: '20px' }}>
               Simpan Profil
             </IonButton>
           </IonContent>
         </IonModal>
 
-        {/* Modal: Ubah Password */}
+        {/* Modal Pop-up: Ubah Password */}
         <IonModal isOpen={showPasswordModal} onDidDismiss={() => setShowPasswordModal(false)} className="profile-modal">
           <IonHeader className="ion-no-border">
             <IonToolbar>
@@ -283,16 +338,26 @@ const ProfilePage: React.FC = () => {
               </IonButtons>
             </IonToolbar>
           </IonHeader>
-          <IonContent className="profile-modal-content">
+          <IonContent className="profile-modal-content ion-padding">
             <IonItem lines="none" className="login-field">
-              <IonLabel position="stacked">Password Baru</IonLabel>
-              <IonInput type="password" value={newPassword} onIonInput={(e) => setNewPassword(e.detail.value ?? '')} />
+              <IonInput 
+                label="Password Baru" 
+                labelPlacement="stacked" 
+                type="password" 
+                value={newPassword} 
+                onIonInput={(e: any) => setNewPassword(e.detail.value ?? '')}
+              />
             </IonItem>
             <IonItem lines="none" className="login-field">
-              <IonLabel position="stacked">Konfirmasi Password</IonLabel>
-              <IonInput type="password" value={confirmPassword} onIonInput={(e) => setConfirmPassword(e.detail.value ?? '')} />
+              <IonInput 
+                label="Konfirmasi Password" 
+                labelPlacement="stacked" 
+                type="password" 
+                value={confirmPassword} 
+                onIonInput={(e: any) => setConfirmPassword(e.detail.value ?? '')}
+              />
             </IonItem>
-            <IonButton expand="block" className="primary-btn" onClick={handleChangePassword}>
+            <IonButton expand="block" className="primary-btn" onClick={handleChangePassword} style={{ marginTop: '20px' }}>
               Simpan Password
             </IonButton>
           </IonContent>
