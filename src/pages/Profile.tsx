@@ -33,8 +33,7 @@ import { getProfile, saveProfile } from '../services/profileService';
 import { isAdminEmail } from '../utils/adminEmails';
 import './Profile.css';
 
-// Pilihan kota untuk Area
-const areaOptions = ['Blitar', 'Kediri', 'Malang', ];
+const areaOptions = ['Blitar', 'Kediri', 'Malang'];
 
 const ProfilePage: React.FC = () => {
   const router = useIonRouter();
@@ -44,7 +43,8 @@ const ProfilePage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [area, setArea] = useState(''); // State lokal aplikasi menggunakan nama 'area'
+  const [area, setArea] = useState('');
+  const [jabatan, setJabatan] = useState('');
 
   const [googleIdentity, setGoogleIdentity] = useState<UserIdentity | null>(null);
   const [connecting, setConnecting] = useState(false);
@@ -54,19 +54,17 @@ const ProfilePage: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-const loadAll = async () => {
+  const loadAll = async () => {
     setLoading(true);
 
     try {
-      // 1. Ambil data sesi user yang sedang aktif langsung dari Supabase Auth
       const { data: { user } } = await supabase.auth.getUser();
 
       const data = await getProfile();
       setName(data.name);
       setPhone(data.phone);
-      setArea((data as any).area || data.jabatan || '');
-
-      // 2. Jika di profile kustom tidak ada email, gunakan email dari akun login utama
+      setArea(data.area || '');
+      setJabatan(data.jabatan || '');
       setEmail(data.email || user?.email || '');
 
       const { data: identitiesData, error } = await supabase.auth.getUserIdentities();
@@ -85,9 +83,6 @@ const loadAll = async () => {
   useEffect(() => {
     loadAll();
 
-    // Setelah redirect balik dari Google (proses linking), Supabase butuh
-    // sedikit waktu memproses token di URL — dengarkan perubahan status auth
-    // dan muat ulang data supaya tombol "Putuskan Koneksi" muncul dengan benar.
     const { data: listener } = supabase.auth.onAuthStateChange(() => {
       loadAll();
     });
@@ -124,16 +119,7 @@ const loadAll = async () => {
   };
 
   const handleSaveInfo = async () => {
-    // Trik Aman: Kirimkan nilai 'area' baik ke properti 'area' maupun 'jabatan' 
-    // agar profileService tidak komplain apa pun strukturnya di database
-    await saveProfile({ 
-      name, 
-      email, 
-      phone, 
-
-      area: area     // mengantisipasi database baru
-    } as any); 
-
+    await saveProfile({ name, email, phone, area});
     presentToast({ message: 'Profil berhasil disimpan', duration: 2000, color: 'success', position: 'top' });
     setShowInfoModal(false);
   };
@@ -190,7 +176,7 @@ const loadAll = async () => {
             {initial || <IonIcon icon={personOutline} />}
           </div>
           <h2 className="profile-hero-name">{name || 'Nama Belum Diisi'}</h2>
-          <span className="profile-hero-role">{roleLabel}</span>
+          <span className="profile-hero-role">{jabatan || 'Staff'}</span>
           <p className="profile-hero-email">{email}</p>
         </div>
 
@@ -278,40 +264,39 @@ const loadAll = async () => {
           </IonHeader>
           <IonContent className="profile-modal-content ion-padding">
             <IonItem lines="none" className="login-field">
-              <IonInput 
-                label="Nama Lengkap" 
-                labelPlacement="stacked" 
-                value={name} 
-                onIonInput={(e: any) => setName(e.detail.value ?? '')}
+              <IonInput
+                label="Nama Lengkap"
+                labelPlacement="stacked"
+                value={name}
+                onIonInput={(e) => setName(e.detail.value ?? '')}
               />
             </IonItem>
-            
+
             <IonItem lines="none" className="login-field">
-              <IonInput 
-                label="Email" 
-                labelPlacement="stacked" 
-                value={email} 
-                readonly 
+              <IonInput
+                label="Email"
+                labelPlacement="stacked"
+                value={email}
+                readonly
               />
             </IonItem>
-            
+
             <IonItem lines="none" className="login-field">
-              <IonInput 
-                label="No. Telepon" 
-                labelPlacement="stacked" 
-                value={phone} 
-                onIonInput={(e: any) => setPhone(e.detail.value ?? '')}
-                placeholder="08xxxxxxxxxx" 
+              <IonInput
+                label="No. Telepon"
+                labelPlacement="stacked"
+                value={phone}
+                onIonInput={(e) => setPhone(e.detail.value ?? '')}
+                placeholder="08xxxxxxxxxx"
               />
             </IonItem>
-            
-            {/* Pilihan Dropdown Area */}
+
             <IonItem lines="none" className="login-field">
-              <IonSelect 
-                label="Area" 
-                labelPlacement="stacked" 
-                value={area} 
-                onIonChange={(e: any) => setArea(e.detail.value)}
+              <IonSelect
+                label="Area"
+                labelPlacement="stacked"
+                value={area}
+                onIonChange={(e) => setArea(e.detail.value)}
                 interface="popover"
               >
                 {areaOptions.map((a) => (
@@ -319,7 +304,7 @@ const loadAll = async () => {
                 ))}
               </IonSelect>
             </IonItem>
-            
+
             <IonButton expand="block" className="primary-btn" onClick={handleSaveInfo} style={{ marginTop: '20px' }}>
               Simpan Profil
             </IonButton>
@@ -340,21 +325,21 @@ const loadAll = async () => {
           </IonHeader>
           <IonContent className="profile-modal-content ion-padding">
             <IonItem lines="none" className="login-field">
-              <IonInput 
-                label="Password Baru" 
-                labelPlacement="stacked" 
-                type="password" 
-                value={newPassword} 
-                onIonInput={(e: any) => setNewPassword(e.detail.value ?? '')}
+              <IonInput
+                label="Password Baru"
+                labelPlacement="stacked"
+                type="password"
+                value={newPassword}
+                onIonInput={(e) => setNewPassword(e.detail.value ?? '')}
               />
             </IonItem>
             <IonItem lines="none" className="login-field">
-              <IonInput 
-                label="Konfirmasi Password" 
-                labelPlacement="stacked" 
-                type="password" 
-                value={confirmPassword} 
-                onIonInput={(e: any) => setConfirmPassword(e.detail.value ?? '')}
+              <IonInput
+                label="Konfirmasi Password"
+                labelPlacement="stacked"
+                type="password"
+                value={confirmPassword}
+                onIonInput={(e) => setConfirmPassword(e.detail.value ?? '')}
               />
             </IonItem>
             <IonButton expand="block" className="primary-btn" onClick={handleChangePassword} style={{ marginTop: '20px' }}>

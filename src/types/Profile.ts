@@ -2,7 +2,8 @@ export interface Profile {
   name: string;
   email: string;
   phone: string;
-  jabatan: string;
+  area: string;
+  jabatan?: string; // optional property for backward compatibility
 }
 
 export function createEmptyProfile(): Profile {
@@ -10,6 +11,7 @@ export function createEmptyProfile(): Profile {
     name: '',
     email: '',
     phone: '',
-    jabatan: '',
+    area: '',
+    jabatan: '', // initialize as empty string for backward compatibility
   };
 }
