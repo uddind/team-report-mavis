@@ -12,6 +12,11 @@ import {
   IonDatetime,
   IonDatetimeButton,
   IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonInput,
   useIonRouter,
   useIonToast,
 } from '@ionic/react';
@@ -23,6 +28,8 @@ import {
   documentTextOutline,
   alertCircleOutline,
   bulbOutline,
+  addOutline,
+  closeOutline,
 } from 'ionicons/icons';
 import Header from '../components/Header';
 import FormSectionCard from '../components/FormSectionCard';
@@ -35,6 +42,11 @@ import type { Report } from '../types/Report';
 import { addReport } from '../services/reportService';
 import { combinedStatusOptions, splitStatus } from '../utils/statusOptions';
 import './TambahReport.css';
+
+// Integrasi Client Supabase
+import { supabase } from '../services/supabaseClient';
+
+const areaOptions = ['Kota Blitar', 'Kab.Blitar', 'Kota Kediri', 'Kab.Kediri', 'Malang']; 
 
 const TambahReport: React.FC = () => {
   const router = useIonRouter();
@@ -63,9 +75,83 @@ const TambahReport: React.FC = () => {
 
   const [informasiLain, setInformasiLain] = useState('');
 
+  // State Modal Tambah Sekolah
+  const [showAddSchoolModal, setShowAddSchoolModal] = useState(false);
+  const [newSchoolName, setNewSchoolName] = useState('');
+  const [newSchoolCity, setNewSchoolCity] = useState('');
+  const [newSchoolDistrict, setNewSchoolDistrict] = useState('');
+  const [isSubmittingSchool, setIsSubmittingSchool] = useState(false);
+
   const handleBatal = () => {
     router.push('/beranda');
   };
+
+  // Fungsi Tambah Sekolah Baru ke Supabase (Sudah Diperbaiki)
+  const handleTambahSekolahBaru = async () => {
+    if (!newSchoolName.trim()) {
+      presentToast({
+        message: 'Nama Sekolah wajib diisi',
+        duration: 2000,
+        color: 'danger',
+        position: 'top',
+      });
+      return;
+    }
+    if (!newSchoolCity) {
+      presentToast({
+        message: 'Kota / Kabupaten wajib dipilih',
+        duration: 2000,
+        color: 'danger',
+        position: 'top',
+      });
+      return;
+    }
+
+    try {
+      setIsSubmittingSchool(true);
+
+      // Mengirimkan string kosong '' jika kecamatan tidak diisi agar lolos not-null constraint
+      const { error } = await supabase
+        .from('sekolah')
+        .insert([
+          {
+            nama_sekolah: newSchoolName.trim(),
+            kab_kota: newSchoolCity,
+            kecamatan: newSchoolDistrict.trim() || '', 
+            created_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (error) throw error;
+
+      // Mengisi form input utama secara otomatis dengan nama sekolah baru
+      setSchoolName(newSchoolName.trim());
+      
+      presentToast({
+        message: 'Sekolah berhasil disimpan ke Supabase!',
+        duration: 2000,
+        color: 'success',
+        position: 'top',
+      });
+
+      // Reset form modal dan tutup jendela modal
+      setNewSchoolName('');
+      setNewSchoolCity('');
+      setNewSchoolDistrict('');
+      setShowAddSchoolModal(false);
+
+    } catch (error: any) {
+      console.error('Error saving school to Supabase:', error);
+      presentToast({
+        message: `Gagal menyimpan: ${error.message || 'Terjadi kesalahan'}`,
+        duration: 3000,
+        color: 'danger',
+        position: 'top',
+      });
+    } finally {
+      setIsSubmittingSchool(false);
+    }
+  }; // SINTAKS FIX: Memastikan penutupan fungsi ini tidak merusak fungsi di bawahnya
 
   const handleSimpan = async () => {
     if (!schoolName.trim()) {
@@ -130,7 +216,17 @@ const TambahReport: React.FC = () => {
       <IonContent fullscreen className="tambah-report-content">
         <FormSectionCard title="🏫 INFORMASI SEKOLAH">
           <IonItem lines="none" className="school-name-item">
-            <IonLabel position="stacked">Nama Sekolah</IonLabel>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+              <IonLabel position="stacked">Nama Sekolah</IonLabel>
+              <IonButton 
+                fill="clear" 
+                size="small" 
+                onClick={() => setShowAddSchoolModal(true)}
+                style={{ marginBottom: '-10px', '--padding-end': '0px' }}
+              >
+                <IonIcon slot="icon-only" icon={addOutline} />
+              </IonButton>
+            </div>
             <SchoolAutocomplete value={schoolName} onChange={setSchoolName} />
           </IonItem>
 
@@ -143,7 +239,7 @@ const TambahReport: React.FC = () => {
                 rows={1}
                 autoGrow
                 value={byChatVisit}
-                onIonInput={(e) => setByChatVisit(e.detail.value ?? '')}
+                onIonInput={(e: CustomEvent) => setByChatVisit(e.detail.value ?? '')}
                 placeholder="Chat atau Visit"
               />
             </div>
@@ -158,7 +254,7 @@ const TambahReport: React.FC = () => {
                 rows={1}
                 autoGrow
                 value={productOffer}
-                onIonInput={(e) => setProductOffer(e.detail.value ?? '')}
+                onIonInput={(e: CustomEvent) => setProductOffer(e.detail.value ?? '')}
                 placeholder="Produk yang ditawarkan"
               />
             </div>
@@ -173,7 +269,7 @@ const TambahReport: React.FC = () => {
                 rows={1}
                 autoGrow
                 value={respon}
-                onIonInput={(e) => setRespon(e.detail.value ?? '')}
+                onIonInput={(e: CustomEvent) => setRespon(e.detail.value ?? '')}
                 placeholder="Respon dari sekolah"
               />
             </div>
@@ -185,7 +281,7 @@ const TambahReport: React.FC = () => {
           <IonItem lines="none">
             <IonSelect
               value={combinedStatus}
-              onIonChange={(e) => setCombinedStatus(e.detail.value)}
+              onIonChange={(e: CustomEvent) => setCombinedStatus(e.detail.value)}
               interface="popover"
               fill="outline"
               className="boxed-select"
@@ -213,7 +309,7 @@ const TambahReport: React.FC = () => {
               <input
                 className="plain-text-input has-icon"
                 value={prevVendor}
-                onChange={(e) => setPrevVendor(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrevVendor(e.target.value)}
                 placeholder="Contoh: MAVIS"
               />
             </div>
@@ -231,7 +327,7 @@ const TambahReport: React.FC = () => {
                 rows={1}
                 autoGrow
                 value={prevJumlah}
-                onIonInput={(e) => setPrevJumlah(e.detail.value ?? '')}
+                onIonInput={(e: CustomEvent) => setPrevJumlah(e.detail.value ?? '')}
                 placeholder="Contoh: 1.650 eks"
               />
             </div>
@@ -245,7 +341,7 @@ const TambahReport: React.FC = () => {
                 rows={1}
                 autoGrow
                 value={prevSpesifikasi}
-                onIonInput={(e) => setPrevSpesifikasi(e.detail.value ?? '')}
+                onIonInput={(e: CustomEvent) => setPrevSpesifikasi(e.detail.value ?? '')}
                 placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto"
               />
             </div>
@@ -256,7 +352,7 @@ const TambahReport: React.FC = () => {
             </IonLabel>
             <IonTextarea
               value={prevProblem}
-              onIonInput={(e) => setPrevProblem(e.detail.value ?? '')}
+              onIonInput={(e: CustomEvent) => setPrevProblem(e.detail.value ?? '')}
               autoGrow
               placeholder="Contoh: Kualitas cetak kurang tajam"
             />
@@ -273,8 +369,8 @@ const TambahReport: React.FC = () => {
                 rows={1}
                 autoGrow
                 value={nextSpesifikasi}
-                onIonInput={(e) => setNextSpesifikasi(e.detail.value ?? '')}
-                placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto (masih sama seperti tahun lalu)"
+                onIonInput={(e: CustomEvent) => setNextSpesifikasi(e.detail.value ?? '')}
+                placeholder="Contoh: uk 44 x 64 cm..."
               />
             </div>
           </IonItem>
@@ -291,7 +387,7 @@ const TambahReport: React.FC = () => {
                 rows={1}
                 autoGrow
                 value={nextJumlah}
-                onIonInput={(e) => setNextJumlah(e.detail.value ?? '')}
+                onIonInput={(e: CustomEvent) => setNextJumlah(e.detail.value ?? '')}
                 placeholder="Contoh: 1.650 eks"
               />
             </div>
@@ -302,9 +398,9 @@ const TambahReport: React.FC = () => {
             </IonLabel>
             <IonTextarea
               value={nextHarapan}
-              onIonInput={(e) => setNextHarapan(e.detail.value ?? '')}
+              onIonInput={(e: CustomEvent) => setNextHarapan(e.detail.value ?? '')}
               autoGrow
-              placeholder="Contoh: Kualitas cetak lebih baik dari sebelumnya"
+              placeholder="Contoh: Kualitas cetak lebih baik"
             />
           </IonItem>
         </CollapsibleSectionCard>
@@ -318,7 +414,7 @@ const TambahReport: React.FC = () => {
                 <IonDatetime
                   id="tanggal-picker"
                   presentation="date"
-                  onIonChange={(e) => {
+                  onIonChange={(e: CustomEvent) => {
                     const val = e.detail.value;
                     setTanggal(typeof val === 'string' ? val.split('T')[0] : '');
                   }}
@@ -335,7 +431,7 @@ const TambahReport: React.FC = () => {
                 <IonDatetime
                   id="jam-picker"
                   presentation="time"
-                  onIonChange={(e) => {
+                  onIonChange={(e: CustomEvent) => {
                     const val = e.detail.value;
                     setJam(typeof val === 'string' ? val : '');
                   }}
@@ -346,7 +442,7 @@ const TambahReport: React.FC = () => {
 
           <IonItem lines="none">
             <IonLabel position="stacked">Catatan</IonLabel>
-            <IonTextarea value={catatan} onIonInput={(e) => setCatatan(e.detail.value ?? '')} autoGrow />
+            <IonTextarea value={catatan} onIonInput={(e: CustomEvent) => setCatatan(e.detail.value ?? '')} autoGrow /> 
           </IonItem>
         </CollapsibleSectionCard>
 
@@ -354,7 +450,7 @@ const TambahReport: React.FC = () => {
           <IonItem lines="none">
             <IonTextarea
               value={informasiLain}
-              onIonInput={(e) => setInformasiLain(e.detail.value ?? '')}
+              onIonInput={(e: CustomEvent) => setInformasiLain(e.detail.value ?? '')}
               autoGrow
               rows={6}
               placeholder="Tulis informasi tambahan di sini..."
@@ -370,9 +466,71 @@ const TambahReport: React.FC = () => {
             Simpan
           </IonButton>
         </div>
+
+        {/* MODAL TAMBAH SEKOLAH */}
+        <IonModal isOpen={showAddSchoolModal} onDidDismiss={() => setShowAddSchoolModal(false)} className="profile-modal">
+          <IonHeader className="ion-no-border">
+            <IonToolbar>
+              <IonTitle>🏫 TAMBAH SEKOLAH</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowAddSchoolModal(false)}>
+                  <IonIcon icon={closeOutline} slot="icon-only" />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="profile-modal-content ion-padding">
+            <IonItem lines="none" className="login-field">
+              <IonInput
+                label="Nama Sekolah"
+                labelPlacement="stacked"
+                value={newSchoolName}
+                onIonInput={(e: CustomEvent) => setNewSchoolName(e.detail.value ?? '')}
+                placeholder="Masukkan nama sekolah"
+              />
+            </IonItem>
+
+            <IonItem lines="none" className="login-field">
+              <IonSelect
+                label="Kota / Kabupaten"
+                labelPlacement="stacked"
+                value={newSchoolCity}
+                onIonChange={(e: CustomEvent) => setNewSchoolCity(e.detail.value)}
+                interface="popover"
+                placeholder="Cari kota/kabupaten..."
+              >
+                {areaOptions.map((a) => (
+                  <IonSelectOption key={a} value={a}>{a}</IonSelectOption>
+                ))}
+              </IonSelect>
+            </IonItem>
+
+            <IonItem lines="none" className="login-field">
+              <IonInput
+                label="Kecamatan (Opsional)"
+                labelPlacement="stacked"
+                value={newSchoolDistrict}
+                onIonInput={(e: CustomEvent) => setNewSchoolDistrict(e.detail.value ?? '')}
+                placeholder="Cari kecamatan..."
+              />
+            </IonItem>
+
+            <IonButton 
+              expand="block" 
+              className="primary-btn" 
+              onClick={handleTambahSekolahBaru} 
+              style={{ marginTop: '30px' }}
+              disabled={isSubmittingSchool}
+            >
+              <IonIcon icon={addOutline} slot="start" />
+              {isSubmittingSchool ? 'Menyimpan...' : 'Tambah Sekolah'}
+            </IonButton>
+          </IonContent>
+        </IonModal>
+
       </IonContent>
     </IonPage>
   );
 };
 
-export default TambahReport; 
+export default TambahReport;
