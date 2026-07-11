@@ -187,3 +187,21 @@
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.profile-hero-badges {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.role-jabatan {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.role-admin {
+  background: #FEF3C7;
+  color: #D97706;
+}

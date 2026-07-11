@@ -8,7 +8,7 @@ export async function getProfile(): Promise<Profile> {
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('full_name, email, phone, area, jabatan')
+    .select('full_name, email, phone, jabatan, area')
     .eq('id', user.id)
     .single();
 
@@ -16,14 +16,12 @@ export async function getProfile(): Promise<Profile> {
     console.error('getProfile error:', error);
   }
 
-  console.log(data);
-
   return {
     name: data?.full_name ?? '',
     email: data?.email ?? user.email ?? '',
     phone: data?.phone ?? '',
-    area: data?.area ?? '', // kolom database tetap 'area'
     jabatan: data?.jabatan ?? '',
+    area: data?.area ?? '',
   };
 }
 
@@ -36,7 +34,8 @@ export async function saveProfile(profile: Profile): Promise<void> {
     full_name: profile.name,
     email: profile.email,
     phone: profile.phone,
-    area: profile.area, // simpan nilai 'area' ke kolom 'area' yang sudah ada
+    jabatan: profile.jabatan,
+    area: profile.area,
     updated_at: new Date().toISOString(),
   });
 

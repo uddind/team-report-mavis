@@ -27,6 +27,9 @@ import {
   logOutOutline,
   closeOutline,
   checkmarkCircle,
+  callOutline,
+  locationOutline,
+  shieldCheckmarkOutline,
 } from 'ionicons/icons';
 import { supabase } from '../services/supabaseClient';
 import { getProfile, saveProfile } from '../services/profileService';
@@ -34,6 +37,7 @@ import { isAdminEmail } from '../utils/adminEmails';
 import './Profile.css';
 
 const areaOptions = ['Blitar', 'Kediri', 'Malang'];
+const jabatanOptions = ['Marketing', 'Sales Executive', 'Supervisor', 'Manager', 'Lainnya'];
 
 const ProfilePage: React.FC = () => {
   const router = useIonRouter();
@@ -93,7 +97,8 @@ const ProfilePage: React.FC = () => {
   }, []);
 
   const initial = name.trim() ? name.trim()[0].toUpperCase() : '';
-  const roleLabel = isAdminEmail(email) ? 'Admin' : 'Staff';
+  const isAdmin = isAdminEmail(email);
+  const badgeLabel = jabatan || 'Staff';
 
   const handleConnectGoogle = async () => {
     setConnecting(true);
@@ -119,7 +124,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleSaveInfo = async () => {
-    await saveProfile({ name, email, phone, area});
+    await saveProfile({ name, email, phone, area, jabatan });
     presentToast({ message: 'Profil berhasil disimpan', duration: 2000, color: 'success', position: 'top' });
     setShowInfoModal(false);
   };
@@ -172,17 +177,50 @@ const ProfilePage: React.FC = () => {
         </div>
 
         <div className="profile-hero">
+          <div className="profile-hero-bg" />
           <div className="profile-avatar-circle">
             {initial || <IonIcon icon={personOutline} />}
           </div>
           <h2 className="profile-hero-name">{name || 'Nama Belum Diisi'}</h2>
-          <span className="profile-hero-role">{jabatan || 'Staff'}</span>
+
+          <div className="profile-hero-badges">
+            <span className="profile-hero-role role-jabatan">
+              <IonIcon icon={shieldCheckmarkOutline} />
+              {badgeLabel}
+            </span>
+            {isAdmin && (
+              <span className="profile-hero-role role-admin">
+                Admin
+              </span>
+            )}
+          </div>
+
           <p className="profile-hero-email">{email}</p>
+
+          {(phone || area) && (
+            <div className="profile-hero-meta">
+              {phone && (
+                <span className="profile-hero-meta-item">
+                  <IonIcon icon={callOutline} /> {phone}
+                </span>
+              )}
+              {area && (
+                <span className="profile-hero-meta-item">
+                  <IonIcon icon={locationOutline} /> {area}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="profile-card fade-in">
           <div className="profile-card-header">
-            <span className="profile-card-title">Google Account</span>
+            <div className="profile-card-header-left">
+              <span className="google-icon-circle">
+                <IonIcon icon={logoGoogle} />
+              </span>
+              <span className="profile-card-title">Google Account</span>
+            </div>
             <span className={`google-badge ${googleIdentity ? 'connected' : ''}`}>
               {googleIdentity ? (
                 <>
@@ -197,7 +235,6 @@ const ProfilePage: React.FC = () => {
           {googleIdentity ? (
             <>
               <div className="google-connected-row">
-                <IonIcon icon={logoGoogle} className="google-icon" />
                 <div>
                   <p className="google-connected-email">{googleIdentity.identity_data?.email as string}</p>
                   <p className="google-connected-date">
@@ -208,7 +245,7 @@ const ProfilePage: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <IonButton expand="block" fill="outline" color="danger" onClick={handleDisconnectGoogle}>
+              <IonButton expand="block" fill="outline" color="danger" className="disconnect-btn" onClick={handleDisconnectGoogle}>
                 Putuskan Koneksi
               </IonButton>
             </>
@@ -227,24 +264,30 @@ const ProfilePage: React.FC = () => {
 
         <div className="profile-list-card fade-in">
           <div className="profile-list-item" onClick={() => setShowInfoModal(true)}>
-            <IonIcon icon={personOutline} className="profile-list-icon" />
+            <span className="profile-list-icon-wrap icon-blue">
+              <IonIcon icon={personOutline} />
+            </span>
             <span className="profile-list-label">Informasi Akun</span>
             <IonIcon icon={chevronForwardOutline} className="profile-list-arrow" />
           </div>
           <div className="profile-list-item" onClick={() => setShowPasswordModal(true)}>
-            <IonIcon icon={lockClosedOutline} className="profile-list-icon" />
+            <span className="profile-list-icon-wrap icon-amber">
+              <IonIcon icon={lockClosedOutline} />
+            </span>
             <span className="profile-list-label">Ubah Password</span>
             <IonIcon icon={chevronForwardOutline} className="profile-list-arrow" />
           </div>
           <div className="profile-list-item no-arrow">
-            <IonIcon icon={informationCircleOutline} className="profile-list-icon" />
+            <span className="profile-list-icon-wrap icon-slate">
+              <IonIcon icon={informationCircleOutline} />
+            </span>
             <span className="profile-list-label">Tentang Aplikasi</span>
             <span className="profile-list-version">v1.0.0</span>
           </div>
         </div>
 
         <div className="profile-logout-row">
-          <IonButton expand="block" fill="clear" color="danger" onClick={handleLogout}>
+          <IonButton expand="block" fill="clear" className="logout-btn" onClick={handleLogout}>
             <IonIcon icon={logOutOutline} slot="start" />
             Logout
           </IonButton>
@@ -289,6 +332,20 @@ const ProfilePage: React.FC = () => {
                 onIonInput={(e) => setPhone(e.detail.value ?? '')}
                 placeholder="08xxxxxxxxxx"
               />
+            </IonItem>
+
+            <IonItem lines="none" className="login-field">
+              <IonSelect
+                label="Jabatan"
+                labelPlacement="stacked"
+                value={jabatan}
+                onIonChange={(e) => setJabatan(e.detail.value)}
+                interface="popover"
+              >
+                {jabatanOptions.map((j) => (
+                  <IonSelectOption key={j} value={j}>{j}</IonSelectOption>
+                ))}
+              </IonSelect>
             </IonItem>
 
             <IonItem lines="none" className="login-field">

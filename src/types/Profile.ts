@@ -3,7 +3,7 @@ export interface Profile {
   email: string;
   phone: string;
   area: string;
-  jabatan?: string; // optional property for backward compatibility
+  jabatan: string;
 }
 
 export function createEmptyProfile(): Profile {
@@ -12,6 +12,6 @@ export function createEmptyProfile(): Profile {
     email: '',
     phone: '',
     area: '',
-    jabatan: '', // initialize as empty string for backward compatibility
+    jabatan: '',
   };
 }
