@@ -104,17 +104,17 @@
 
 .input-icon {
   position: absolute;
-  left: 12px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 16px;
+  font-size: 15px;
   color: #94A3B8;
   z-index: 2;
   pointer-events: none;
 }
 
 .form-section-body input.plain-text-input.has-icon {
-  padding-left: 36px !important;
+  padding-left: 30px !important;
 }
 
 .label-icon {
@@ -132,18 +132,34 @@
 
 .input-icon-top {
   position: absolute;
-  left: 12px;
-  top: 12px;
-  font-size: 16px;
+  left: 10px;
+  top: 11px;
+  font-size: 15px;
   color: #94A3B8;
   z-index: 2;
   pointer-events: none;
 }
 
-.wrap-textarea {
-  margin-top: 0 !important;
+.wrap-textarea.has-icon {
+  /* Jarak standar aman dari sisi kiri kotak */
+  --padding-start: 10px !important;
 }
 
-.wrap-textarea.has-icon {
-  --padding-start: 36px;
+/* Mematikan padding internal shadow DOM Ionic agar patuh pada kode di atas */
+.wrap-textarea.has-icon .textarea-wrapper {
+  padding-top: 15px !important;
+  padding-bottom: 5px !important;
+  padding-inline-start: 12px !important;
 }
+
+.wrap-textarea.ion-focused {
+  border-color: #2563EB !important;
+  border-width: 2px !important;
+}
+
+.wrap-textarea textarea {
+  min-height: 15px !important;
+  display: unset !important;
+  align-items: unset !important;
+}
+

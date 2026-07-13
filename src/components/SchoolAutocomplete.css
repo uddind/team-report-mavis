@@ -1,6 +1,31 @@
 .school-autocomplete-wrapper {
   position: relative;
   width: 100%;
+  margin-top: 6px;
+  display: block;
+}
+
+.school-autocomplete-wrapper ion-input {
+  --background: #ffffff;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  min-height: 38px;
+  font-size: 14px;
+  display: block;
+  width: 100%;
+}
+
+.school-autocomplete-wrapper ion-input::part(native) {
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.school-autocomplete-wrapper ion-input.ion-focused::part(native) {
+  border-color: #2563EB;
+  border-width: 2px;
 }
 
 .school-suggestions-list {
@@ -10,9 +35,9 @@
   right: 0;
   z-index: 20;
   background: #ffffff;
-  border-radius: var(--app-radius-sm, 10px);
-  box-shadow: var(--app-shadow-card, 0 4px 12px rgba(15, 23, 42, 0.08));
-  border: 1px solid var(--ion-border-color, #E2E8F0);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  border: 1px solid #E2E8F0;
   max-height: 200px;
   overflow-y: auto;
   margin-top: 4px;
@@ -20,10 +45,11 @@
 
 .school-suggestion-item {
   padding: 10px 12px;
-  font-size: 13px;
+  font-size: 13.5px;
   color: #0F172A;
   cursor: pointer;
   border-bottom: 1px solid #F1F5F9;
+  transition: background 150ms ease;
 }
 
 .school-suggestion-item:last-child {
@@ -32,13 +58,4 @@
 
 .school-suggestion-item:hover {
   background: #EFF6FF;
-}
-
-.school-autocomplete-wrapper ion-input {
-  border: 1.5px solid var(--ion-border-color, #E2E8F0);
-  border-radius: 10px;
-  background: #ffffff;
-  --padding-start: 12px;
-  --padding-end: 12px;
-  min-height: 38px;
 }
