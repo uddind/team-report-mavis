@@ -1,3 +1,4 @@
+// src/components/SchoolAutocomplete.tsx
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { IonInput, IonList, IonItem, IonLabel } from "@ionic/react";
 import { supabase } from '../services/supabaseClient';
@@ -7,17 +8,23 @@ interface SchoolAutocompleteProps {
   onChange: (value: string) => void;
 }
 
-const SchoolAutocomplete = forwardRef<{ refetch: (forcedQuery?: string) => void }, SchoolAutocompleteProps>(
+export interface SchoolAutocompleteRef {
+  refetch: (forcedQuery?: string) => void;
+}
+
+const SchoolAutocomplete = forwardRef<SchoolAutocompleteRef, SchoolAutocompleteProps>(
   ({ value, onChange }, ref) => {
     const [query, setQuery] = useState(value);
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
 
+    // Mencegah loop update state eksternal
     useEffect(() => {
-      setQuery(value);
+      if (value !== query) {
+        setQuery(value);
+      }
     }, [value]);
 
-    // Fungsi utama untuk mengambil data dari Supabase berdasarkan apa yang diketik
     const fetchSchools = async (searchQuery: string) => {
       if (!searchQuery || searchQuery.trim().length < 1) {
         setSuggestions([]);
@@ -37,7 +44,6 @@ const SchoolAutocomplete = forwardRef<{ refetch: (forcedQuery?: string) => void 
       }
     };
 
-    // Menerima parameter string paksaan (forcedQuery) dari TambahReport
     useImperativeHandle(ref, () => ({
       refetch: (forcedQuery?: string) => {
         const targetSearch = forcedQuery || query;
@@ -45,10 +51,16 @@ const SchoolAutocomplete = forwardRef<{ refetch: (forcedQuery?: string) => void 
       }
     }));
 
+    // Debounce listener yang aman dari loop re-render
     useEffect(() => {
+      if (!query || query === value) {
+        if (!query) setSuggestions([]);
+        return;
+      }
+
       const delayDebounceFn = setTimeout(() => {
         fetchSchools(query);
-      }, 300);
+      }, 400);
 
       return () => clearTimeout(delayDebounceFn);
     }, [query]);
@@ -60,18 +72,18 @@ const SchoolAutocomplete = forwardRef<{ refetch: (forcedQuery?: string) => void 
     };
 
     return (
-      <div style={{ position: 'relative', width: '100%', zIndex: 100 }}>
+      <div style={{ position: 'relative', width: '100%' }}>
         <IonInput
           value={query}
           placeholder="Cari atau ketik nama sekolah..."
-          onIonInput={(e: any) => { // 🔥 PERBAIKAN: Menggunakan tipe data 'any' untuk menghindari eror linting TypeScript
+          onIonInput={(e: CustomEvent) => {
             const val = e.detail.value ?? '';
             setQuery(val);
             onChange(val);
             setShowSuggestions(true);
           }}
-          onFocus={() => setShowSuggestions(true)}
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          onIonFocus={() => setShowSuggestions(true)}
+          onIonBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
         />
 
         {showSuggestions && suggestions.length > 0 && (
@@ -81,13 +93,20 @@ const SchoolAutocomplete = forwardRef<{ refetch: (forcedQuery?: string) => void 
             maxHeight: '200px', overflowY: 'auto',
             boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
             background: 'var(--ion-background-color, #fff)',
-            zIndex: 999
+            zIndex: 9999
           }}>
             {suggestions.map((school, index) => (
-              <IonItem button key={index} onMouseDown={() => handleSelectSchool(school.nama_sekolah)}>
+              <IonItem 
+                button 
+                key={index} 
+                lines="full"
+                onMouseDown={() => handleSelectSchool(school.nama_sekolah)}
+              >
                 <IonLabel>
-                  <h2>{school.nama_sekolah}</h2>
-                  <p>{school.kecamatan ? `${school.kecamatan}, ` : ''}{school.kab_kota}</p>
+                  <h2 style={{ fontSize: '15px', fontWeight: '500' }}>{school.nama_sekolah}</h2>
+                  <p style={{ fontSize: '13px', color: '#666' }}>
+                    {school.kecamatan ? `${school.kecamatan}, ` : ''}{school.kab_kota}
+                  </p>
                 </IonLabel>
               </IonItem>
             ))}

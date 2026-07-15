@@ -126,7 +126,7 @@ const EditReport: React.FC = () => {
     const { statusCode, statusTemperature } = splitStatus(combinedStatus);
 
     const updatedReport: Report = {
-      id: id ?? Date.now().toString(),
+      id: id || crypto.randomUUID(),
       schoolName,
       byChatVisit,
       productOffer,

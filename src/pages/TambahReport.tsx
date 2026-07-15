@@ -1,543 +1,365 @@
-import { useState, useRef } from 'react'; 
-import {
-  IonContent,
-  IonPage,
-  IonItem,
-  IonLabel,
-  IonIcon,
-  IonTextarea,
-  IonSelect,
-  IonSelectOption,
-  IonButton,
-  IonDatetime,
-  IonDatetimeButton,
-  IonModal,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonInput,
-  useIonRouter,
-  useIonToast,
-} from '@ionic/react'; // FIX TYPO: Sebelumnya @ionicreact
-import {
-  chatbubbleOutline,
-  pricetagOutline,
-  chatboxEllipsesOutline,
-  cubeOutline,
-  documentTextOutline,
-  alertCircleOutline,
-  bulbOutline,
-  addOutline,
-  closeOutline,
+// src/pages/TambahReport.tsx
+import React, { useState, useEffect } from 'react';
+import { 
+  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, 
+  IonCard, IonCardContent, IonCardHeader, IonCardTitle,
+  IonItem, IonLabel, IonInput, IonTextarea, IonSelect, IonSelectOption, 
+  IonButton, IonGrid, IonText, IonRow, IonCol, useIonToast, IonSpinner,
+  IonButtons, IonIcon, IonModal
+} from '@ionic/react';
+import { 
+  notificationsOutline, personOutline, addOutline, closeOutline, 
+  checkmarkCircleOutline 
 } from 'ionicons/icons';
-import Header from '../components/Header';
-import FormSectionCard from '../components/FormSectionCard';
-import CollapsibleSectionCard from '../components/CollapsibleSectionCard';
-import StatusInfoModal from '../components/StatusInfoModal';
-import StatusPreviewCard from '../components/StatusPreviewCard';
 import SchoolAutocomplete from '../components/SchoolAutocomplete';
-import ComboPriceInput from '../components/ComboPriceInput';
-import type { Report } from '../types/Report';
-import { addReport } from '../services/reportService';
-import { combinedStatusOptions, splitStatus } from '../utils/statusOptions';
-import './TambahReport.css';
-
-// Integrasi Client Supabase
+import { geocodeAddress } from '../utils/geocode';
 import { supabase } from '../services/supabaseClient';
 
-const areaOptions = ['Kota Blitar', 'Kab.Blitar', 'Kota Kediri', 'Kab.Kediri', 'Malang']; 
+// ================= INTEGRASI LEAFLET MAPS INTERAKTIF =================
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix aset gambar marker Leaflet di Webpack/Vite bundler
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41]
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+
+interface MapLocation {
+  lat: number;
+  lng: number;
+}
+
+// 1. Komponen untuk Mengarahkan Kamera & Memaksa Peta Menggambar Ulang Elemen DOM-nya
+const ChangeMapCenter = ({ center, modalOpen }: { center: MapLocation; modalOpen: boolean }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (center && center.lat && center.lng && modalOpen) {
+      // Mengatasi bug peta blank/abu-abu karena modal rendering
+      setTimeout(() => {
+        map.invalidateSize();
+        map.setView([center.lat, center.lng], 16);
+      }, 350); // Jeda aman menunggu transisi sliding modal Ionic selesai
+    }
+  }, [center, map, modalOpen]);
+  
+  return null;
+};
+
+// 2. Komponen Pembantu untuk Menggeser / Memindahkan PIN via Klik Layar Peta
+const LocationMarker = ({ position, setPosition }: { position: MapLocation, setPosition: (loc: MapLocation) => void }) => {
+  useMapEvents({
+    click(e) {
+      setPosition({ lat: e.latlng.lat, lng: e.latlng.lng });
+    },
+  });
+  return position ? <Marker position={[position.lat, position.lng]} /> : null;
+};
+
+interface FormData {
+  schoolName: string;
+  interactionType: string;
+  productOffer: string;
+  responSekolah: string;
+  statusProspek: string;
+}
 
 const TambahReport: React.FC = () => {
-  const autocompleteRef = useRef<{ refetch: (forcedQuery?: string) => void } | null>(null);
-  const router = useIonRouter();
   const [presentToast] = useIonToast();
+  
+  // State Utama Form Report
+  const [formData, setFormData] = useState<FormData>({
+    schoolName: '',
+    interactionType: '',
+    productOffer: '',
+    responSekolah: '',
+    statusProspek: '',
+  });
 
-  const [schoolName, setSchoolName] = useState('');
-  const [byChatVisit, setByChatVisit] = useState('');
-  const [productOffer, setProductOffer] = useState('');
-  const [respon, setRespon] = useState('');
-  const [combinedStatus, setCombinedStatus] = useState('OF|Cold');
+  // State Modal Alur Tambah Sekolah
+  const [showAddSchoolModal, setShowAddSchoolModal] = useState<boolean>(false);
+  const [isSavingSchool, setIsSavingSchool] = useState<boolean>(false);
+  const [isSchoolSavedSuccess, setIsSchoolSavedSuccess] = useState<boolean>(false);
+  
+  // State Input Form Internal Sekolah Baru
+  const [newSchoolName, setNewSchoolName] = useState<string>('');
+  const [newSchoolCity, setNewSchoolCity] = useState<string>('');
+  const [newSchoolKecamatan, setNewSchoolKecamatan] = useState<string>('');
+  const [isSearchingMap, setIsSearchingMap] = useState<boolean>(false);
+  
+  // State Koordinat Lokasi Otomatis (Leaflet)
+  const [mapLocation, setMapLocation] = useState<MapLocation | null>(null);
 
-  const [prevVendor, setPrevVendor] = useState('');
-  const [prevHarga, setPrevHarga] = useState('');
-  const [prevJumlah, setPrevJumlah] = useState('');
-  const [prevSpesifikasi, setPrevSpesifikasi] = useState('');
-  const [prevProblem, setPrevProblem] = useState('');
-
-  const [nextHarga, setNextHarga] = useState('');
-  const [nextJumlah, setNextJumlah] = useState('');
-  const [nextSpesifikasi, setNextSpesifikasi] = useState('');
-  const [nextHarapan, setNextHarapan] = useState('');
-
-  const [tanggal, setTanggal] = useState('');
-  const [jam, setJam] = useState('');
-  const [catatan, setCatatan] = useState('');
-
-  const [informasiLain, setInformasiLain] = useState('');
-
-  // State Modal Tambah Sekolah
-  const [showAddSchoolModal, setShowAddSchoolModal] = useState(false);
-  const [newSchoolName, setNewSchoolName] = useState('');
-  const [newSchoolCity, setNewSchoolCity] = useState('');
-  const [newSchoolDistrict, setNewSchoolDistrict] = useState('');
-  const [isSubmittingSchool, setIsSubmittingSchool] = useState(false);
-
-  const handleBatal = () => {
-    router.push('/beranda');
+  const handleInputChange = (key: keyof FormData, value: any) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Fungsi Tambah Sekolah Baru ke Supabase
-  const handleTambahSekolahBaru = async () => {
-    if (!newSchoolName.trim()) {
-      presentToast({
-        message: 'Nama Sekolah wajib diisi',
-        duration: 2000,
-        color: 'danger',
-        position: 'top',
-      });
+  // ================= OTOMATISASI PENCARIAN MAPS SAAT MENGETIK NAMA SEKOLAH =================
+  useEffect(() => {
+    if (!showAddSchoolModal) return;
+
+    const delayDebounce = setTimeout(() => {
+      if (newSchoolName.trim().length >= 4) {
+        executeGeocode();
+      }
+    }, 1200); // Debounce 1.2 detik agar API tidak terbebani setiap ketikan huruf
+
+    return () => clearTimeout(delayDebounce);
+  }, [newSchoolName, newSchoolCity, newSchoolKecamatan, showAddSchoolModal]);
+
+  const executeGeocode = async () => {
+    setIsSearchingMap(true);
+    
+    // Gabungkan query agar pencarian OpenStreetMap/Geocode sangat presisi
+    const queryParts = [
+      newSchoolName.trim(),
+      newSchoolKecamatan.trim(),
+      newSchoolCity.trim()
+    ].filter(Boolean);
+
+    const searchQuery = queryParts.join(', ');
+    
+    try {
+      const geoResult = await geocodeAddress(searchQuery);
+      if (geoResult && geoResult.lat && geoResult.lng) {
+        setMapLocation({ lat: geoResult.lat, lng: geoResult.lng });
+      } else {
+        // Fallback: Jika gagal dengan kecamatan/kota, cari dengan nama sekolah saja
+        const fallback = await geocodeAddress(newSchoolName.trim());
+        if (fallback && fallback.lat && fallback.lng) {
+          setMapLocation({ lat: fallback.lat, lng: fallback.lng });
+        }
+      }
+    } catch (err) {
+      console.error("Gagal melacak lokasi otomatis", err);
+    } finally {
+      setIsSearchingMap(false);
+    }
+  };
+
+  const getStatusDescription = (status: string) => {
+    switch (status) {
+      case 'OF': return '💡 Offer Made: Penawaran awal telah resmi dikirimkan ke pihak sekolah.';
+      case 'FU 1': return '📞 Follow Up 1: Kontak pertama setelah penawaran.';
+      case 'C': return '🎉 Closing: Prospek berhasil sepakat.';
+      default: return 'ℹ️ Silakan pilih opsi di atas untuk melihat detail deskripsi status.';
+    }
+  };
+
+  // ================= AKSI UTAMA SIMPAN DATA KE SUPABASE =================
+  const handleSaveNewSchool = async () => {
+    if (!newSchoolName.trim() || !newSchoolCity.trim() || !newSchoolKecamatan.trim()) {
+      presentToast({ message: 'Kolom Nama, Kota, dan Kecamatan wajib diisi!', duration: 2000, color: 'danger', position: 'top' });
       return;
     }
-    if (!newSchoolCity) {
-      presentToast({
-        message: 'Kota / Kabupaten wajib dipilih',
-        duration: 2000,
-        color: 'danger',
-        position: 'top',
-      });
-      return;
-    }
+
+    setIsSavingSchool(true);
+    
+    // Ambil nilai koordinat lat & lng dari state peta saat ini
+    const lat = mapLocation?.lat ?? null;
+    const lng = mapLocation?.lng ?? null;
 
     try {
-      setIsSubmittingSchool(true);
-
       const { error } = await supabase
-        .from('sekolah')
+        .from('sekolah') 
         .insert([
-          {
-            nama_sekolah: newSchoolName.trim(),
-            kab_kota: newSchoolCity,
-            kecamatan: newSchoolDistrict.trim() || '', 
+          { 
+            nama_sekolah: newSchoolName.trim(), 
+            kab_kota: newSchoolCity.trim(), 
+            kecamatan: newSchoolKecamatan.trim(),
+            latitude: lat,
+            longtitude: lng, // Sesuaikan nama kolom di database Anda (longtitude / longitude)
             created_at: new Date().toISOString(),
-          },
+            created_by: 'User App'
+          }
         ]);
 
       if (error) throw error;
 
-      setSchoolName(newSchoolName.trim());
+      setIsSchoolSavedSuccess(true);
+      // Masukkan otomatis ke input form kunjungan utama
+      setFormData(prev => ({ ...prev, schoolName: newSchoolName.trim() }));
       
-      setTimeout(() => {
-        autocompleteRef.current?.refetch(newSchoolName.trim());
-      }, 150);
+    } catch (err: any) {
+      presentToast({ message: 'Gagal menyimpan ke database: ' + err.message, duration: 3000, color: 'danger', position: 'top' });
+    } finally {
+      setIsSavingSchool(false);
+    }
+  };
 
-      presentToast({
-        message: 'Sekolah berhasil disimpan ke Supabase!',
-        duration: 2000,
-        color: 'success',
-        position: 'top',
-      });
-
+  const handleResetSchoolModal = () => {
+    setShowAddSchoolModal(false);
+    setTimeout(() => {
       setNewSchoolName('');
       setNewSchoolCity('');
-      setNewSchoolDistrict('');
-      setShowAddSchoolModal(false);
-
-    } catch (error: any) {
-      console.error('Error saving school to Supabase:', error);
-      presentToast({
-        message: `Gagal menyimpan: ${error.message || 'Terjadi kesalahan'}`,
-        duration: 3000,
-        color: 'danger',
-        position: 'top',
-      });
-    } finally {
-      setIsSubmittingSchool(false);
-    }
-  }; // FIX: Struktur penutupan fungsi aman
-
-  const handleSimpan = async () => {
-    if (!schoolName.trim()) {
-      presentToast({
-        message: 'Nama Sekolah wajib diisi',
-        duration: 2000,
-        color: 'danger',
-        position: 'top',
-      });
-      return;
-    }
-
-    const { statusCode, statusTemperature } = splitStatus(combinedStatus);
-
-    const newReport: Report = {
-      id: Date.now().toString(),
-      schoolName,
-      byChatVisit,
-      productOffer,
-      respon,
-      statusCode,
-      statusTemperature,
-      previousProject: {
-        vendor: prevVendor,
-        harga: prevHarga,
-        jumlah: prevJumlah,
-        spesifikasi: prevSpesifikasi,
-        problem: prevProblem,
-      },
-      nextProject: {
-        vendor: '',
-        harga: nextHarga,
-        jumlah: nextJumlah,
-        spesifikasi: nextSpesifikasi,
-        harapan: nextHarapan,
-      },
-      appointment: {
-        tanggal,
-        jam,
-        catatan,
-      },
-      informasiLain,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    await addReport(newReport);
-
-    presentToast({
-      message: 'Report berhasil disimpan',
-      duration: 2000,
-      color: 'success',
-      position: 'top',
-    });
-
-    router.push('/beranda');
+      setNewSchoolKecamatan('');
+      setIsSchoolSavedSuccess(false);
+      setMapLocation(null);
+    }, 300);
   };
 
   return (
     <IonPage>
-      <Header />
-      <IonContent fullscreen className="tambah-report-content">
-        <FormSectionCard title="🏫 INFORMASI SEKOLAH">
-          <IonItem lines="none" className="school-name-item">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-              <IonLabel position="stacked">Nama Sekolah</IonLabel>
+      <IonHeader className="ion-no-border">
+        <IonToolbar style={{ '--background': '#ffffff', '--padding-start': '16px', '--padding-end': '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '24px' }}>📋</span>
+            <IonTitle style={{ padding: 0, fontSize: '20px', fontWeight: 'bold', color: '#111827' }}>MRS</IonTitle>
+          </div>
+          <IonButtons slot="end">
+            <IonButton style={{ '--background': '#2563eb', '--border-radius': '50%', width: '40px', height: '40px' }}>
+              <IonIcon icon={personOutline} style={{ color: '#ffffff' }} />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+
+      <IonContent className="ion-padding" style={{ '--background': '#f4f5f8' }}>
+        <IonGrid fixed>
+          <IonCard style={{ margin: '0 0 16px 0', borderRadius: '12px' }}>
+            <IonCardHeader color="light">
+              <IonCardTitle style={{ fontSize: '15px', fontWeight: 'bold' }}>Form Kunjungan Utama</IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent className="ion-no-padding">
+              <div style={{ display: 'flex', alignItems: 'flex-end', width: '100%', paddingRight: '16px' }}>
+                <div style={{ flex: 1 }}>
+                  <IonItem lines="full">
+                    <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '8px' }}>NAMA SEKOLAH *</IonLabel>
+                    <SchoolAutocomplete value={formData.schoolName} onChange={(val: string) => handleInputChange('schoolName', val)} />
+                  </IonItem>
+                </div>
+                <IonButton color="primary" onClick={() => setShowAddSchoolModal(true)} style={{ margin: '0 0 8px 8px', height: '38px' }}>
+                  <IonIcon icon={addOutline} />
+                </IonButton>
+              </div>
+
+              <IonItem lines="full">
+                <IonLabel position="stacked">Metode Interaksi</IonLabel>
+                <IonSelect placeholder="Pilih Chat / Visit" value={formData.interactionType} onIonChange={e => handleInputChange('interactionType', e.detail.value)}>
+                  <IonSelectOption value="Chat">Chat</IonSelectOption>
+                  <IonSelectOption value="Visit">Visit</IonSelectOption>
+                </IonSelect>
+              </IonItem>
+
+              <IonItem lines="full">
+                <IonLabel position="stacked">Product Offer</IonLabel>
+                <IonInput placeholder="Masukkan penawaran produk..." value={formData.productOffer} onIonInput={e => handleInputChange('productOffer', e.detail.value)} />
+              </IonItem>
+
+              <IonItem lines="full">
+                <IonLabel position="stacked">Respon</IonLabel>
+                <IonTextarea placeholder="Respon sekolah..." value={formData.responSekolah} onIonInput={e => handleInputChange('responSekolah', e.detail.value)} />
+              </IonItem>
+
+              <IonItem lines="none">
+                <IonLabel position="stacked">Status Prospek</IonLabel>
+                <IonSelect placeholder="Pilih Status" value={formData.statusProspek} onIonChange={e => handleInputChange('statusProspek', e.detail.value)}>
+                  <IonSelectOption value="OF">OF</IonSelectOption>
+                  <IonSelectOption value="FU 1">FU 1</IonSelectOption>
+                  <IonSelectOption value="C">C</IonSelectOption>
+                </IonSelect>
+              </IonItem>
+
+              <div style={{ margin: '16px', padding: '10px', borderRadius: '8px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                <span style={{ fontSize: '13px', color: '#4b5563' }}>{getStatusDescription(formData.statusProspek)}</span>
+              </div>
+            </IonCardContent>
+          </IonCard>
+
+          <IonButton expand="block" shape="round" color="primary" onClick={() => alert('Report Kunjungan Disimpan')}>
+            Simpan Report Kunjungan
+          </IonButton>
+        </IonGrid>
+      </IonContent>
+
+      {/* ================= MODAL TAMBAH SEKOLAH BARU ================= */}
+      <IonModal isOpen={showAddSchoolModal} onDidDismiss={handleResetSchoolModal} style={{ '--height': '95%', '--border-radius': '16px' }}>
+        <IonHeader className="ion-no-border">
+          <IonToolbar style={{ '--background': '#ffffff', 'padding': '8px 8px 0 8px' }}>
+            <IonTitle style={{ fontSize: '16px', fontWeight: 'bold' }}>
+              {!isSchoolSavedSuccess ? 'Tambah Sekolah Baru' : 'Sekolah Berhasil Ditambahkan'}
+            </IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={handleResetSchoolModal}>
+                <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+
+        {!isSchoolSavedSuccess ? (
+          <IonContent className="ion-padding" style={{ '--background': '#ffffff' }}>
+            <div>
+              <IonItem lines="full" style={{ '--padding-start': '0px' }}>
+                <IonLabel position="stacked" style={{ fontWeight: '600' }}>Nama Sekolah <IonText color="danger">*</IonText></IonLabel>
+                <IonInput placeholder="Contoh: SMPN 1 Blitar" value={newSchoolName} onIonInput={e => setNewSchoolName(e.detail.value ?? '')} />
+              </IonItem>
+
+              <IonItem lines="full" style={{ '--padding-start': '0px', 'marginTop': '10px' }}>
+                <IonLabel position="stacked" style={{ fontWeight: '600' }}>Kota / Kabupaten <IonText color="danger">*</IonText></IonLabel>
+                <IonInput placeholder="Masukkan kota" value={newSchoolCity} onIonInput={e => setNewSchoolCity(e.detail.value ?? '')} />
+              </IonItem>
+
+              <IonItem lines="full" style={{ '--padding-start': '0px', 'marginTop': '10px' }}>
+                <IonLabel position="stacked" style={{ fontWeight: '600' }}>Kecamatan <IonText color="danger">*</IonText></IonLabel>
+                <IonInput placeholder="Masukkan kecamatan" value={newSchoolKecamatan} onIonInput={e => setNewSchoolKecamatan(e.detail.value ?? '')} />
+              </IonItem>
+
+              {/* PANEL PETA OTOMATIS */}
+              <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '12px', color: '#4b5563', fontWeight: '600' }}>🗺️ Peta Lokasi Otomatis</span>
+                  {isSearchingMap && <IonSpinner name="crescent" style={{ transform: 'scale(0.6)' }} />}
+                </div>
+
+                <div style={{ width: '100%', height: '230px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', zIndex: 1 }}>
+                  {mapLocation && mapLocation.lat && mapLocation.lng ? (
+                    <MapContainer center={[mapLocation.lat, mapLocation.lng]} zoom={16} style={{ width: '100%', height: '100%' }}>
+                      <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      <ChangeMapCenter center={mapLocation} modalOpen={showAddSchoolModal} />
+                      <LocationMarker position={mapLocation} setPosition={setMapLocation} />
+                    </MapContainer>
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#94a3b8', fontSize: '12px', padding: '0 24px', textAlign: 'center' }}>
+                      {isSearchingMap ? 'Sedang mencari koordinat peta...' : 'Ketik Nama Sekolah di atas untuk melacak peta otomatis...'}
+                    </div>
+                  )}
+                </div>
+                <span style={{ fontSize: '11px', color: '#dc2626', display: 'block', marginTop: '6px' }}>
+                  *Tips: Jika koordinat meleset, Anda bisa langsung mengklik/ketuk area pada peta untuk memindahkan PIN manual.
+                </span>
+              </div>
+
               <IonButton 
-                fill="clear" 
-                size="small" 
-                onClick={() => setShowAddSchoolModal(true)}
-                style={{ marginBottom: '-10px', '--padding-end': '0px' }}
+                expand="block" 
+                color="success" 
+                onClick={handleSaveNewSchool} 
+                disabled={isSavingSchool || !mapLocation} 
+                style={{ marginTop: '24px', height: '46px', fontWeight: 'bold' }}
               >
-                <IonIcon slot="icon-only" icon={addOutline} />
+                {isSavingSchool ? <IonSpinner name="crescent" /> : 'Simpan Sekolah'}
               </IonButton>
             </div>
-            <SchoolAutocomplete 
-              ref={autocompleteRef}
-              value={schoolName} 
-              onChange={setSchoolName} 
-            />
-          </IonItem>
-
-          <IonItem lines="none">
-            <IonLabel position="stacked">by Chat / Visit</IonLabel>
-            <div className="input-with-icon">
-              <IonIcon icon={chatbubbleOutline} className="input-icon-top" />
-              <IonTextarea
-                className="wrap-textarea has-icon"
-                rows={1}
-                autoGrow
-                value={byChatVisit}
-                onIonInput={(e: any) => setByChatVisit(e.detail.value ?? '')}
-                placeholder="Chat / Visit"
-              />
-            </div>
-          </IonItem>
-
-          <IonItem lines="none">
-            <IonLabel position="stacked">Product Offer</IonLabel>
-            <div className="input-with-icon">
-              <IonIcon icon={pricetagOutline} className="input-icon-top" />
-              <IonTextarea
-                className="wrap-textarea has-icon"
-                rows={1}
-                autoGrow
-                value={productOffer}
-                onIonInput={(e: any) => setProductOffer(e.detail.value ?? '')}
-                placeholder="Produk yang ditawarkan"
-              />
-            </div>
-          </IonItem>
-
-          <IonItem lines="none">
-            <IonLabel position="stacked">Respon</IonLabel>
-            <div className="input-with-icon">
-              <IonIcon icon={chatboxEllipsesOutline} className="input-icon-top" />
-              <IonTextarea
-                className="wrap-textarea has-icon"
-                rows={1}
-                autoGrow
-                value={respon}
-                onIonInput={(e: any) => setRespon(e.detail.value ?? '')}
-                placeholder="Respon dari sekolah"
-              />
-            </div>
-          </IonItem>
-
-          <div className="status-label-row">
-            <span className="status-label-text">Status</span>
-          </div>
-          <IonItem lines="none">
-            <IonSelect
-              value={combinedStatus}
-              onIonChange={(e: any) => setCombinedStatus(e.detail.value)}
-              interface="popover"
-              fill="outline"
-              className="boxed-select"
-            >
-              {combinedStatusOptions.map((opt) => (
-                <IonSelectOption key={opt.value} value={opt.value}>
-                  {opt.label}
-                </IonSelectOption>
-              ))}
-            </IonSelect>
-          </IonItem>
-
-          <StatusPreviewCard statusCode={splitStatus(combinedStatus).statusCode} />
-
-          <div className="status-info-trigger-row">
-            <StatusInfoModal />
-          </div>
-        </FormSectionCard>
-
-        <CollapsibleSectionCard title="⏰ PREVIOUS PROJECT">
-          <IonItem lines="none">
-            <IonLabel position="stacked">Vendor</IonLabel>
-            <div className="input-with-icon">
-              {/* POSISI BARU: Menggunakan IonTextarea agar teks bisa turun kebawah dengan UI tetap persis seperti foto */}
-              <IonIcon icon={cubeOutline} className="input-icon-top" />
-              <IonTextarea
-                className="wrap-textarea has-icon"
-                rows={1}
-                autoGrow={true}
-                value={prevVendor}
-                onIonInput={(e: any) => setPrevVendor(e.detail.value ?? '')}
-                placeholder="Contoh: MAVIS"
-              />
-            </div>
-          </IonItem>
-          <IonItem lines="none">
-            <IonLabel position="stacked">Harga</IonLabel>
-            <ComboPriceInput value={prevHarga} onChange={setPrevHarga} />
-          </IonItem>
-          <IonItem lines="none">
-            <IonLabel position="stacked">Jumlah</IonLabel>
-            <div className="input-with-icon">
-              <IonIcon icon={cubeOutline} className="input-icon-top" />
-              <IonTextarea
-                className="wrap-textarea has-icon"
-                rows={1}
-                autoGrow
-                value={prevJumlah}
-                onIonInput={(e: any) => setPrevJumlah(e.detail.value ?? '')}
-                placeholder="Contoh: 1.650 eks"
-              />
-            </div>
-          </IonItem>
-          <IonItem lines="none">
-            <IonLabel position="stacked">Spesifikasi</IonLabel>
-            <div className="input-with-icon">
-              <IonIcon icon={documentTextOutline} className="input-icon-top" />
-              <IonTextarea
-                className="wrap-textarea has-icon"
-                rows={1}
-                autoGrow
-                value={prevSpesifikasi}
-                onIonInput={(e: any) => setPrevSpesifikasi(e.detail.value ?? '')}
-                placeholder="Contoh: uk 44 x 64 cm, 1 bulanan, 6 lembar, spiral hanger, include sesi foto"
-              />
-            </div>
-          </IonItem>
-          <IonItem lines="none">
-            <IonLabel position="stacked">
-              <IonIcon icon={alertCircleOutline} className="label-icon" /> Problem
-            </IonLabel>
-            <IonTextarea
-              value={prevProblem}
-              onIonInput={(e: any) => setPrevProblem(e.detail.value ?? '')}
-              autoGrow
-              placeholder="Contoh: Kualitas cetak kurang tajam"
-            />
-          </IonItem>
-        </CollapsibleSectionCard>
-
-        <CollapsibleSectionCard title="💡 NEXT PROJECT">
-          <IonItem lines="none">
-            <IonLabel position="stacked">Spesifikasi</IonLabel>
-            <div className="input-with-icon">
-              <IonIcon icon={documentTextOutline} className="input-icon-top" />
-              <IonTextarea
-                className="wrap-textarea has-icon"
-                rows={1}
-                autoGrow
-                value={nextSpesifikasi}
-                onIonInput={(e: any) => setNextSpesifikasi(e.detail.value ?? '')}
-                placeholder="Contoh: uk 44 x 64 cm..."
-              />
-            </div>
-          </IonItem>
-          <IonItem lines="none">
-            <IonLabel position="stacked">Harga</IonLabel>
-            <ComboPriceInput value={nextHarga} onChange={setNextHarga} />
-          </IonItem>
-          <IonItem lines="none">
-            <IonLabel position="stacked">Jumlah</IonLabel>
-            <div className="input-with-icon">
-              <IonIcon icon={cubeOutline} className="input-icon-top" />
-              <IonTextarea
-                className="wrap-textarea has-icon"
-                rows={1}
-                autoGrow
-                value={nextJumlah}
-                onIonInput={(e: any) => setNextJumlah(e.detail.value ?? '')}
-                placeholder="Contoh: 1.650 eks"
-              />
-            </div>
-          </IonItem>
-          <IonItem lines="none">
-            <IonLabel position="stacked">
-              <IonIcon icon={bulbOutline} className="label-icon" /> Harapan
-            </IonLabel>
-            <IonTextarea
-              value={nextHarapan}
-              onIonInput={(e: any) => setNextHarapan(e.detail.value ?? '')}
-              autoGrow
-              placeholder="Contoh: Kualitas cetak lebih baik"
-            />
-          </IonItem>
-        </CollapsibleSectionCard>
-
-        <CollapsibleSectionCard title="🗓 APPOINTMENT">
-          <IonItem lines="none">
-            <IonLabel position="stacked">Tanggal</IonLabel>
-            <div className="datetime-box">
-              <IonDatetimeButton datetime="tanggal-picker" />
-              <IonModal keepContentsMounted>
-                <IonDatetime
-                  id="tanggal-picker"
-                  presentation="date"
-                  onIonChange={(e: any) => {
-                    const val = e.detail.value;
-                    setTanggal(typeof val === 'string' ? val.split('T')[0] : '');
-                  }}
-                />
-              </IonModal>
-            </div>
-          </IonItem>
-
-          <IonItem lines="none">
-            <IonLabel position="stacked">Jam</IonLabel>
-            <div className="datetime-box">
-              <IonDatetimeButton datetime="jam-picker" />
-              <IonModal keepContentsMounted>
-                <IonDatetime
-                  id="jam-picker"
-                  presentation="time"
-                  onIonChange={(e: any) => {
-                    const val = e.detail.value;
-                    setJam(typeof val === 'string' ? val : '');
-                  }}
-                />
-              </IonModal>
-            </div>
-          </IonItem>
-
-          <IonItem lines="none">
-            <IonLabel position="stacked">Catatan</IonLabel>
-            <IonTextarea value={catatan} onIonInput={(e: any) => setCatatan(e.detail.value ?? '')} autoGrow /> 
-          </IonItem>
-        </CollapsibleSectionCard>
-
-        <CollapsibleSectionCard title="🔑 INFORMASI LAIN">
-          <IonItem lines="none">
-            <IonTextarea
-              value={informasiLain}
-              onIonInput={(e: any) => setInformasiLain(e.detail.value ?? '')}
-              autoGrow
-              rows={6}
-              placeholder="Tulis informasi tambahan di sini..."
-            />
-          </IonItem>
-        </CollapsibleSectionCard>
-
-        <div className="tambah-report-actions">
-          <IonButton expand="block" fill="outline" onClick={handleBatal}>
-            Batal
-          </IonButton>
-          <IonButton expand="block" fill="solid" onClick={handleSimpan}>
-            Simpan
-          </IonButton>
-        </div>
-
-        {/* MODAL TAMBAH SEKOLAH */}
-        <IonModal isOpen={showAddSchoolModal} onDidDismiss={() => setShowAddSchoolModal(false)} className="profile-modal">
-          <IonHeader className="ion-no-border">
-            <IonToolbar>
-              <IonTitle>🏫 TAMBAH SEKOLAH</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => setShowAddSchoolModal(false)}>
-                  <IonIcon icon={closeOutline} slot="icon-only" />
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent className="profile-modal-content ion-padding">
-            <IonItem lines="none" className="login-field">
-              <IonInput
-                label="Nama Sekolah"
-                labelPlacement="stacked"
-                value={newSchoolName}
-                onIonInput={(e: any) => setNewSchoolName(e.detail.value ?? '')}
-                placeholder="Masukkan nama sekolah"
-              />
-            </IonItem>
-
-            <IonItem lines="none" className="login-field">
-              <IonSelect
-                label="Kota / Kabupaten"
-                labelPlacement="stacked"
-                value={newSchoolCity}
-                onIonChange={(e: any) => setNewSchoolCity(e.detail.value)}
-                interface="popover"
-                placeholder="Cari kota/kabupaten..."
-              >
-                {areaOptions.map((a) => (
-                  <IonSelectOption key={a} value={a}>{a}</IonSelectOption>
-                ))}
-              </IonSelect>
-            </IonItem>
-
-            <IonItem lines="none" className="login-field">
-              <IonInput
-                label="Kecamatan (Opsional)"
-                labelPlacement="stacked"
-                value={newSchoolDistrict}
-                onIonInput={(e: any) => setNewSchoolDistrict(e.detail.value ?? '')}
-                placeholder="Cari kecamatan..."
-              />
-            </IonItem>
-
-            <IonButton 
-              expand="block" 
-              className="primary-btn" 
-              onClick={handleTambahSekolahBaru} 
-              style={{ marginTop: '30px' }}
-              disabled={isSubmittingSchool}
-            >
-              <IonIcon icon={addOutline} slot="start" />
-              {isSubmittingSchool ? 'Menyimpan...' : 'Tambah Sekolah'}
-            </IonButton>
           </IonContent>
-        </IonModal>
-
-      </IonContent>
+        ) : (
+          <IonContent className="ion-padding">
+            {/* Tampilan Sukses */}
+            <div style={{ textAlign: 'center', padding: '24px 8px' }}>
+              <IonIcon icon={checkmarkCircleOutline} style={{ fontSize: '76px', color: '#0f9755' }} />
+              <h2 style={{ fontWeight: 'bold', margin: '12px 0' }}>Sekolah Berhasil Ditambahkan!</h2>
+              <p style={{ color: '#666', fontSize: '14px' }}>Data sekolah beserta titik koordinatnya telah tersimpan di database.</p>
+              <IonButton expand="block" color="success" onClick={handleResetSchoolModal} style={{ marginTop: '24px' }}>Tutup</IonButton>
+            </div>
+          </IonContent>
+        )}
+      </IonModal>
     </IonPage>
   );
 };

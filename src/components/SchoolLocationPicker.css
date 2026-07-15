@@ -1,0 +1,26 @@
+.school-location-picker {
+  margin-top: 8px;
+}
+
+.location-picker-loading {
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F1F5F9;
+  border-radius: 10px;
+  color: #94A3B8;
+  font-size: 13px;
+}
+
+.use-location-btn {
+  --border-radius: 10px;
+  margin-top: 8px;
+}
+
+.location-coords-text {
+  font-size: 12px;
+  color: #64748B;
+  margin-top: 6px;
+  text-align: center;
+}

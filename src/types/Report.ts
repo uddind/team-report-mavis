@@ -3,7 +3,7 @@
 // ===========================================
 
 /** Status pipeline code shown in filters and badges */
-export type StatusCode = 'OF' | 'FU1' | 'FU2' | 'C' | 'ND';
+export type StatusCode = 'OF' | 'FU1' | 'C' | 'ND';
 
 /** Temperature/qualification level of the lead */
 export type StatusTemperature = 'Cold' | 'Warm' | 'Hot';
@@ -61,17 +61,13 @@ export interface Appointment {
 /**
  * Full Report record — combines School, Previous Project, Next Project,
  * Appointment, and free-form "Informasi Lain" notes.
- *
- * NOTE: School fields are kept flattened at the top level (schoolName,
- * byChatVisit, productOffer, respon, statusCode, statusTemperature)
- * for backward compatibility with existing pages (Beranda, Laporan,
- * TambahReport, EditReport, DetailReport, ReportCard — all built in
- * STEPS 3–7). The `school` property below exposes the exact same data
- * as a nested object matching your spec's "School" structure, kept in
- * sync automatically wherever reports are created/edited.
  */
 export interface Report extends School {
   id: string;
+  
+  // 🔥 TAMBAHAN BARU: Koordinat GPS Peta
+  latitude: number | null;
+  longitude: number | null;
 
   previousProject: PreviousProject;
   nextProject: NextProject;
@@ -84,8 +80,6 @@ export interface Report extends School {
 
 /**
  * Helper: extracts the School-shaped object from a full Report.
- * Useful if a component wants the "school" data grouped separately
- * rather than flattened (e.g. for a future school-summary view).
  */
 export function getSchoolFromReport(report: Report): School {
   return {
@@ -100,8 +94,6 @@ export function getSchoolFromReport(report: Report): School {
 
 /**
  * Factory: creates a brand-new empty Report with sensible defaults.
- * Used by TambahReport (STEP 4) as the initial blank-form shape,
- * and can be reused anywhere else a fresh Report is needed.
  */
 export function createEmptyReport(): Report {
   const now = new Date().toISOString();
@@ -113,6 +105,11 @@ export function createEmptyReport(): Report {
     respon: '',
     statusCode: 'OF',
     statusTemperature: 'Cold',
+    
+    // 🔥 Default koordinat awal kosong saat buat form baru
+    latitude: null,
+    longitude: null,
+
     previousProject: {
       vendor: '',
       harga: '',

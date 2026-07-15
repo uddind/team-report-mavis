@@ -144,7 +144,7 @@
   /* Jarak standar aman dari sisi kiri kotak */
   --padding-start: 10px !important;
 }
-
+ 
 /* Mematikan padding internal shadow DOM Ionic agar patuh pada kode di atas */
 .wrap-textarea.has-icon .textarea-wrapper {
   padding-top: 15px !important;
@@ -163,3 +163,15 @@
   align-items: unset !important;
 }
 
+.modal-map-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.modal-map-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+}

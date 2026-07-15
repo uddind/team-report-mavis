@@ -41,6 +41,8 @@ interface ReportRow {
   other_information: string;
   created_at: string;
   updated_at: string;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 function toRow(report: Report, userId: string): Omit<ReportRow, 'created_at'> & { created_at?: string } {
@@ -65,6 +67,9 @@ function toRow(report: Report, userId: string): Omit<ReportRow, 'created_at'> & 
     appointment_time: report.appointment.jam || null,
     appointment_note: report.appointment.catatan,
     other_information: report.informasiLain,
+    // 🔥 MEMASUKKAN LATITUDE & LONGITUDE KE SUPABASE
+    latitude: report.latitude,
+    longitude: report.longitude,
     updated_at: new Date().toISOString(),
   };
 }
@@ -80,6 +85,9 @@ function fromRow(row: ReportRow): Report {
     respon: row.response ?? '',
     statusCode: (statusCode as Report['statusCode']) ?? 'OF',
     statusTemperature: (statusTemperature as Report['statusTemperature']) ?? 'Cold',
+    // 🔥 MEMASUKKAN LATITUDE & LONGITUDE DARI SUPABASE KE APP
+    latitude: row.latitude ?? null,
+    longitude: row.longitude ?? null,
     previousProject: {
       vendor: row.previous_vendor ?? '',
       harga: formatNumberToPrice(row.previous_price),
