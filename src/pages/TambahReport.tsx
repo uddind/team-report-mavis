@@ -45,7 +45,20 @@ const ChangeMapCenter = ({ center, modalOpen }: { center: MapLocation; modalOpen
       // Mengatasi bug peta blank/abu-abu karena modal rendering
       setTimeout(() => {
         map.invalidateSize();
-        map.setView([center.lat, center.lng], 16);
+        const ChangeMapCenter = ({ center, modalOpen, zoom }: { center: MapLocation; modalOpen: boolean; zoom: number }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (center && center.lat && center.lng && modalOpen) {
+      setTimeout(() => {
+        map.invalidateSize();
+        map.setView([center.lat, center.lng], zoom);
+      }, 350);
+    }
+  }, [center, map, modalOpen, zoom]);
+  
+  return null;
+};
       }, 350); // Jeda aman menunggu transisi sliding modal Ionic selesai
     }
   }, [center, map, modalOpen]);
@@ -95,7 +108,9 @@ const TambahReport: React.FC = () => {
   const [isSearchingMap, setIsSearchingMap] = useState<boolean>(false);
   
   // State Koordinat Lokasi Otomatis (Leaflet)
-  const [mapLocation, setMapLocation] = useState<MapLocation | null>(null);
+  const defaultMapCenter: MapLocation = { lat: -8.0983, lng: 112.1616 }; // Blitar, titik tengah default
+const [mapLocation, setMapLocation] = useState<MapLocation>(defaultMapCenter);
+const [hasFoundLocation, setHasFoundLocation] = useState<boolean>(false);
 
   const handleInputChange = (key: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -114,10 +129,9 @@ const TambahReport: React.FC = () => {
     return () => clearTimeout(delayDebounce);
   }, [newSchoolName, newSchoolCity, newSchoolKecamatan, showAddSchoolModal]);
 
-  const executeGeocode = async () => {
+ const executeGeocode = async () => {
     setIsSearchingMap(true);
-    
-    // Gabungkan query agar pencarian OpenStreetMap/Geocode sangat presisi
+
     const queryParts = [
       newSchoolName.trim(),
       newSchoolKecamatan.trim(),
@@ -125,16 +139,44 @@ const TambahReport: React.FC = () => {
     ].filter(Boolean);
 
     const searchQuery = queryParts.join(', ');
-    
+
     try {
       const geoResult = await geocodeAddress(searchQuery);
       if (geoResult && geoResult.lat && geoResult.lng) {
         setMapLocation({ lat: geoResult.lat, lng: geoResult.lng });
-      } else {
-        // Fallback: Jika gagal dengan kecamatan/kota, cari dengan nama sekolah saja
-        const fallback = await geocodeAddress(newSchoolName.trim());
-        if (fallback && fallback.lat && fallback.lng) {
-          setMapLocation({ lat: fallback.lat, lng: fallback.lng });
+        setHasFoundLocation(true);
+        return;
+      }
+
+      // Fallback 1: coba cari dengan nama sekolah + kota saja
+      const fallback1 = await geocodeAddress(`${newSchoolName.trim()}, ${newSchoolCity.trim()}`);
+      if (fallback1 && fallback1.lat && fallback1.lng) {
+        setMapLocation({ lat: fallback1.lat, lng: fallback1.lng });
+        setHasFoundLocation(true);
+        return;
+      }
+
+      // Fallback 2: coba cari dengan nama sekolah saja
+      const fallback2 = await geocodeAddress(newSchoolName.trim());
+      if (fallback2 && fallback2.lat && fallback2.lng) {
+        setMapLocation({ lat: fallback2.lat, lng: fallback2.lng });
+        setHasFoundLocation(true);
+        return;
+      }
+
+      // Fallback 3: kalau kota diisi, minimal peta pindah ke area kota tersebut
+      // (bukan titik pasti sekolah — cuma supaya user tidak perlu geser peta manual dari lokasi jauh)
+      if (newSchoolCity.trim()) {
+        const cityResult = await geocodeAddress(newSchoolCity.trim());
+        if (cityResult && cityResult.lat && cityResult.lng) {
+          setMapLocation({ lat: cityResult.lat, lng: cityResult.lng });
+          setHasFoundLocation(false);
+          presentToast({
+            message: `Sekolah "${newSchoolName.trim()}" tidak ditemukan di peta. Silakan ketuk peta untuk menandai lokasi tepatnya.`,
+            duration: 3500,
+            color: 'warning',
+            position: 'top',
+          });
         }
       }
     } catch (err) {
@@ -194,14 +236,15 @@ const TambahReport: React.FC = () => {
     }
   };
 
-  const handleResetSchoolModal = () => {
+const handleResetSchoolModal = () => {
     setShowAddSchoolModal(false);
     setTimeout(() => {
       setNewSchoolName('');
       setNewSchoolCity('');
       setNewSchoolKecamatan('');
       setIsSchoolSavedSuccess(false);
-      setMapLocation(null);
+      setMapLocation(defaultMapCenter);
+      setHasFoundLocation(false);
     }, 300);
   };
 
@@ -301,7 +344,7 @@ const TambahReport: React.FC = () => {
                 <IonLabel position="stacked" style={{ fontWeight: '600' }}>Nama Sekolah <IonText color="danger">*</IonText></IonLabel>
                 <IonInput placeholder="Contoh: SMPN 1 Blitar" value={newSchoolName} onIonInput={e => setNewSchoolName(e.detail.value ?? '')} />
               </IonItem>
-
+</div>
               <IonItem lines="full" style={{ '--padding-start': '0px', 'marginTop': '10px' }}>
                 <IonLabel position="stacked" style={{ fontWeight: '600' }}>Kota / Kabupaten <IonText color="danger">*</IonText></IonLabel>
                 <IonInput placeholder="Masukkan kota" value={newSchoolCity} onIonInput={e => setNewSchoolCity(e.detail.value ?? '')} />
@@ -318,32 +361,40 @@ const TambahReport: React.FC = () => {
                   <span style={{ fontSize: '12px', color: '#4b5563', fontWeight: '600' }}>🗺️ Peta Lokasi Otomatis</span>
                   {isSearchingMap && <IonSpinner name="crescent" style={{ transform: 'scale(0.6)' }} />}
                 </div>
+                
+                <div style={{ width: '100%', height: '230px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', zIndex: 1, position: 'relative' }}>
+                  <MapContainer center={[mapLocation.lat, mapLocation.lng]} zoom={hasFoundLocation ? 17 : 13} style={{ width: '100', height: '100' }}>
+                    <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      <ChangeMapCenter center={mapLocation} modalOpen={showAddSchoolModal} zoom={hasFoundLocation ? 17 : 13} />
+                      <LocationMarker
+                      position={mapLocation}
+                      setPosition={(loc) => {
+                        setMapLocation(loc);
+                        setHasFoundLocation(true);
+                      }}
+                    />
+                  </MapContainer>
 
-                <div style={{ width: '100%', height: '230px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', zIndex: 1 }}>
-                  {mapLocation && mapLocation.lat && mapLocation.lng ? (
-                    <MapContainer center={[mapLocation.lat, mapLocation.lng]} zoom={16} style={{ width: '100%', height: '100%' }}>
-                      <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                      <ChangeMapCenter center={mapLocation} modalOpen={showAddSchoolModal} />
-                      <LocationMarker position={mapLocation} setPosition={setMapLocation} />
-                    </MapContainer>
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#94a3b8', fontSize: '12px', padding: '0 24px', textAlign: 'center' }}>
-                      {isSearchingMap ? 'Sedang mencari koordinat peta...' : 'Ketik Nama Sekolah di atas untuk melacak peta otomatis...'}
+                  {isSearchingMap && (
+                    <div style={{ position: 'absolute', top: 8, right: 8, background: '#ffffff', borderRadius: '8px', padding: '4px 8px', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+                      <IonSpinner name="crescent" style={{ transform: 'scale(0.7)' }} />
+                    </div>
+                  )}
+
+                  {!hasFoundLocation && !isSearchingMap && (
+                    <div style={{ position: 'absolute', bottom: 8, left: 8, right: 8, background: 'rgba(255,255,255,0.92)', borderRadius: '8px', padding: '6px 10px', fontSize: '11px', color: '#64748B', textAlign: 'center' }}>
+                      Lokasi belum pasti — ketuk peta untuk menandai titik sekolah secara manual
                     </div>
                   )}
                 </div>
-                <span style={{ fontSize: '11px', color: '#dc2626', display: 'block', marginTop: '6px' }}>
-                  *Tips: Jika koordinat meleset, Anda bisa langsung mengklik/ketuk area pada peta untuk memindahkan PIN manual.
-                </span>
-              </div>
-
               <IonButton 
                 expand="block" 
                 color="success" 
                 onClick={handleSaveNewSchool} 
-                disabled={isSavingSchool || !mapLocation} 
+                disabled={isSavingSchool} 
                 style={{ marginTop: '24px', height: '46px', fontWeight: 'bold' }}
               >
+              
                 {isSavingSchool ? <IonSpinner name="crescent" /> : 'Simpan Sekolah'}
               </IonButton>
             </div>
