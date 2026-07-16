@@ -30,13 +30,15 @@ import './theme/tabs.css';
 
 import Beranda from './pages/Beranda';
 import Laporan from './pages/Laporan';
-import TambahReport from './pages/TambahReport';
+// import TambahReport from './pages/TambahReport';
 import DetailReport from './pages/DetailReport';
 import EditReport from './pages/EditReport';
 import Profile from './pages/Profile';
 import LoginModal from './components/LoginModal';
 
 import { supabase } from './services/supabaseClient';
+import TambahReport from './pages/TambahReport';
+import TambahSekolah from './pages/tambahsekolah';
 
 setupIonicReact();
 
@@ -74,6 +76,9 @@ const App: React.FC = () => {
             <Route exact path="/profile" component={Profile} />
             <Route exact path="/">
               <Redirect to="/beranda" />
+            </Route>
+            <Route exact path="/tambah-sekolah">
+            <TambahSekolah />
             </Route>
           </IonRouterOutlet>
 

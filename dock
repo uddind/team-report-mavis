@@ -1,0 +1,94 @@
+Nama Sekolah
+      │
+      ▼
+GET /regional/indonesia/provinces
+      │
+      ▼
+Pilih Provinsi (Wajib)
+      │
+      ▼
+GET /regional/indonesia/regencies?province_code=XX
+      │
+      ▼
+Pilih Kota/Kabupaten (Wajib)
+      │
+      ▼
+GET /regional/indonesia/districts?regency_code=XXXX
+      │
+      ▼
+Pilih Kecamatan (Opsional)
+      │
+      ▼
+GET /regional/indonesia/villages?district_code=XXXXXX
+      │
+      ▼
+Pilih Kelurahan (Opsional)
+      │
+      ▼
+Simpan ke Supabase
+
+
+
+Jika pengguna hanya mengisi yang wajib ::
+
+Nama Sekolah      : SMKN 1 Blitar
+Provinsi          : Jawa Timur
+Kota/Kabupaten    : Kota Blitar
+Kecamatan         : -
+Kelurahan         : -
+
+
+Flow UI di WebApp MRS
+┌──────────────────────────────┐
+│ Nama Sekolah                 │
+├──────────────────────────────┤
+│ Provinsi *                   │ ▼
+├──────────────────────────────┤
+│ Kota/Kabupaten *             │ ▼
+├──────────────────────────────┤
+│ Kecamatan (Opsional)         │ ▼
+├──────────────────────────────┤
+│ Kelurahan (Opsional)         │ ▼
+├──────────────────────────────┤
+│           Simpan             │
+└──────────────────────────────┘
+
+
+
+Arsitektur MRS
+                API Wilayah Indonesia
+                        │
+                        │
+         Mengambil data wilayah secara realtime
+                        │
+                        ▼
+              Form Tambah Sekolah
+                        │
+        ┌───────────────┼───────────────┐
+        │               │               │
+        ▼               ▼               ▼
+  Provinsi        Kota/Kabupaten   Kecamatan
+                                        │
+                                        ▼
+                                  Kelurahan
+                        │
+                        ▼
+             Simpan ke Database Supabase
+
+
+
+Misalnya pengguna memilih:
+
+Nama Sekolah : SMKN 1 Blitar
+Provinsi : Jawa Timur
+Kota : Kota Blitar
+Kecamatan : Kepanjenkidul
+Kelurahan : Kepanjen Lor
+
+Maka yang disimpan:
+
+Nama Sekolah   : SMKN 1 Blitar
+Province Code  : 35
+City Code      : 3572
+District Code  : 3572010
+Village Code   : 3572010003
