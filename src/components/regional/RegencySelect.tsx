@@ -30,6 +30,6 @@ const RegencySelect: React.FC<RegencySelectProps> = React.memo(({
   );
 });
 
-RegencySelect.displayName = 'Kota/Kabupaten';
+RegencySelect.displayName = 'RegencySelect';
 
 export default RegencySelect;
