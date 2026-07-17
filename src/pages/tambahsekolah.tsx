@@ -11,7 +11,7 @@ import { useRegional } from '../hooks/useRegional';
 import ProvinceSelect from '../components/regional/ProvinceSelect';
 import RegencySelect from '../components/regional/RegencySelect';
 import DistrictSelect from '../components/regional/DistrictSelect';
-import VillageSelect from '../components/regional/VillageSelect';
+import VillageSelect from '../components/regional/Villageselect';
 import { supabase } from '../services/supabaseClient';
 
 interface NavigationState {

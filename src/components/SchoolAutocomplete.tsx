@@ -33,7 +33,7 @@ const SchoolAutocomplete = forwardRef<SchoolAutocompleteRef, SchoolAutocompleteP
       try {
         const { data, error } = await supabase
           .from('sekolah')
-          .select('nama_sekolah, kab_kota, kecamatan')
+          .select('nama_sekolah, city_name, district_name')
           .ilike('nama_sekolah', `%${searchQuery.trim()}%`)
           .limit(5);
 
@@ -105,7 +105,7 @@ const SchoolAutocomplete = forwardRef<SchoolAutocompleteRef, SchoolAutocompleteP
                 <IonLabel>
                   <h2 style={{ fontSize: '15px', fontWeight: '500' }}>{school.nama_sekolah}</h2>
                   <p style={{ fontSize: '13px', color: '#666' }}>
-                    {school.kecamatan ? `${school.kecamatan}, ` : ''}{school.kab_kota}
+                    {school.district_name ? `${school.district_name}, ` : ''}{school.city_name}
                   </p>
                 </IonLabel>
               </IonItem>

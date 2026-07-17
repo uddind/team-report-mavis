@@ -163,7 +163,7 @@ export function useRegional(): UseRegionalReturn {
     }
   }, []);
 
-  // ===========================================
+  // ===========================================  
   // Reset per level
   // ===========================================
   const resetRegencies = useCallback((): void => {
@@ -211,7 +211,7 @@ export function useRegional(): UseRegionalReturn {
   const selectRegency = useCallback((regency: Regency): void => {
     setSelectedRegency(regency);
 
-    // Reset Kecamatan & Kelurahan
+    // Reset Kecamatan & Kelurahanx 
     resetDistricts();
     resetVillages();
 
