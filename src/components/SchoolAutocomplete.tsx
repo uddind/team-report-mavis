@@ -18,15 +18,37 @@ const SchoolAutocomplete = forwardRef<SchoolAutocompleteRef, SchoolAutocompleteP
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
 
-    // Mencegah loop update state eksternal
+    // Sinkronkan input dari parent, lalu cari sekolah yang sesuai
     useEffect(() => {
       if (value !== query) {
         setQuery(value);
       }
-    }, [value]);
+
+      if (value?.trim() && value === query) {
+        setShowSuggestions(true);
+      }
+    }, [value, query]);
+
+    useEffect(() => {
+      if (!value?.trim()) {
+        setSuggestions([]);
+        return;
+      }
+
+      if (query !== value) {
+        return;
+      }
+
+      const delayDebounceFn = setTimeout(() => {
+        void fetchSchools(value);
+      }, 300);
+
+      return () => clearTimeout(delayDebounceFn);
+    }, [value, query]);
 
     const fetchSchools = async (searchQuery: string) => {
-      if (!searchQuery || searchQuery.trim().length < 1) {
+      const normalized = searchQuery?.trim();
+      if (!normalized) {
         setSuggestions([]);
         return;
       }
@@ -34,7 +56,7 @@ const SchoolAutocomplete = forwardRef<SchoolAutocompleteRef, SchoolAutocompleteP
         const { data, error } = await supabase
           .from('sekolah')
           .select('nama_sekolah, city_name, district_name')
-          .ilike('nama_sekolah', `%${searchQuery.trim()}%`)
+          .ilike('nama_sekolah', `%${normalized}%`)
           .limit(5);
 
         if (error) throw error;
@@ -59,16 +81,17 @@ const SchoolAutocomplete = forwardRef<SchoolAutocompleteRef, SchoolAutocompleteP
       }
 
       const delayDebounceFn = setTimeout(() => {
-        fetchSchools(query);
+        void fetchSchools(query);
       }, 400);
 
       return () => clearTimeout(delayDebounceFn);
-    }, [query]);
+    }, [query, value]);
 
     const handleSelectSchool = (schoolName: string) => {
       setQuery(schoolName);
       onChange(schoolName);
       setShowSuggestions(false);
+      void fetchSchools(schoolName);
     };
 
     return (
@@ -81,8 +104,14 @@ const SchoolAutocomplete = forwardRef<SchoolAutocompleteRef, SchoolAutocompleteP
             setQuery(val);
             onChange(val);
             setShowSuggestions(true);
+            void fetchSchools(val);
           }}
-          onIonFocus={() => setShowSuggestions(true)}
+          onIonFocus={() => {
+            setShowSuggestions(true);
+            if (query) {
+              void fetchSchools(query);
+            }
+          }}
           onIonBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
         />
 
