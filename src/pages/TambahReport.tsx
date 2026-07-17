@@ -66,8 +66,23 @@ const FieldLabelWithInfo: React.FC<FieldLabelWithInfoProps> = ({ label, descript
           size="small"
           onClick={() => setIsOpen(true)}
           title="Deskripsi"
-          style={{ margin: 0, minWidth: '28px', height: '28px', color: '#f59e0b', fontWeight: 'bold', padding: 0 }}
+          style={{
+            margin: 0,
+            minWidth: '18px',
+            height: '18px',
+            width: '18px',
+            color: '#f59e0b',
+            padding: 0,
+            fontSize: '10px',
+            fontWeight: '100',
+            border: '1px solid #f59e0b',
+            borderRadius: '20%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
         >
+          ?
         </IonButton>
       </div>
       <IonPopover isOpen={isOpen} onDidDismiss={() => setIsOpen(false)}>
