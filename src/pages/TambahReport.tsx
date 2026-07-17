@@ -3,16 +3,15 @@ import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
   IonCard, IonCardContent, IonCardHeader, IonCardTitle,
   IonItem, IonLabel, IonInput, IonTextarea, IonSelect, IonSelectOption,
-  IonButton, IonGrid, IonText, IonRow, IonCol, useIonToast, IonSpinner,
-  useIonViewWillEnter, IonIcon
+  IonButton, IonGrid, IonText, IonRow, IonCol, useIonToast,
+  useIonViewWillEnter, IonIcon, IonPopover
 } from '@ionic/react';
 import { addOutline } from 'ionicons/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 import SchoolAutocomplete from '../components/SchoolAutocomplete';
 import { geocodeAddress } from '../utils/geocode';
 
-// Route path halaman ini sendiri & halaman Tambah Sekolah.
-// SESUAIKAN string ini kalau path routing di App.tsx kamu berbeda.
+
 const ROUTE_TAMBAH_REPORT = '/tambah-report';
 const ROUTE_TAMBAH_SEKOLAH = '/tambah-sekolah';
 
@@ -21,7 +20,6 @@ interface NavigationState {
   returnTo?: string;
 }
 
-// Struktur Data Form Terpadu
 interface FormData {
   schoolName: string;
   newSchoolCity: string;
@@ -32,13 +30,14 @@ interface FormData {
   responSekolah: string;
   statusProspek: string;
   prevVendor: string;
-  prevSpec: string;
+  prevSpec: string; // Ditambahkan untuk Previous Project Spesifikasi
   prevHarga: string;
   prevJumlah: string;
   prevProblem: string;
   nextSpec: string;
   nextHarga: string;
   nextJumlah: string;
+  nextSpecDetail: string; // Ditambahkan untuk double spesifikasi di Next Project
   harapan: string;
   appointment: string;
   infoLain: string;
@@ -46,33 +45,61 @@ interface FormData {
 
 type FieldChangeHandler = (key: keyof FormData, value: any) => void;
 
+interface FieldLabelWithInfoProps {
+  label: string;
+  description: string;
+  required?: boolean;
+}
+
+const FieldLabelWithInfo: React.FC<FieldLabelWithInfoProps> = ({ label, description, required = false }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px', color: '#333' }}>
+          {label}
+          {required ? <IonText color="danger"> *</IonText> : null}
+        </IonLabel>
+        <IonButton
+          fill="clear"
+          size="small"
+          onClick={() => setIsOpen(true)}
+          title="Deskripsi"
+          style={{ margin: 0, minWidth: '28px', height: '28px', color: '#f59e0b', fontWeight: 'bold', padding: 0 }}
+        >
+        </IonButton>
+      </div>
+      <IonPopover isOpen={isOpen} onDidDismiss={() => setIsOpen(false)}>
+        <div style={{ padding: '12px 14px', maxWidth: '280px' }}>
+          <div style={{ fontWeight: '700', marginBottom: '6px' }}>Deskripsi</div>
+          <div style={{ fontSize: '13px', color: '#444', lineHeight: '1.6', whiteSpace: 'pre-line' }}>{description}</div>
+        </div>
+      </IonPopover>
+    </>
+  );
+};
+
 /* =====================================================================
    CARD 1: INFORMASI KUNJUNGAN UTAMA
-   Dipisah + di-memo supaya ketikan di card lain tidak memicu re-render
-   di sini (khususnya penting karena ada SchoolAutocomplete + geocoding).
 ===================================================================== */
 interface MainVisitCardProps {
   schoolName: string;
-  newSchoolLat: number | null;
-  newSchoolLng: number | null;
   interactionType: string;
   productOffer: string;
   responSekolah: string;
   statusProspek: string;
-  isGeocoding: boolean;
   onChange: FieldChangeHandler;
-  onAutoLocate: () => void;
   onAddNewSchool: () => void;
 }
 
 const MainVisitCard = React.memo<MainVisitCardProps>(({
-  schoolName, newSchoolLat, newSchoolLng, interactionType, productOffer,
-  responSekolah, statusProspek, isGeocoding, onChange, onAutoLocate, onAddNewSchool
+  schoolName, interactionType, productOffer, responSekolah, statusProspek, onChange, onAddNewSchool
 }) => {
   return (
     <IonCard style={{ margin: '0 0 16px 0', borderRadius: '12px' }}>
       <IonCardHeader color="light">
-        <IonCardTitle style={{ fontSize: '15px', fontWeight: 'bold' }}>Form Kunjungan Utama</IonCardTitle>
+        <IonCardTitle style={{ fontSize: '15px', fontWeight: 'bold' }}>🏫 FORM KUNJUNGAN UTAMA</IonCardTitle>
       </IonCardHeader>
       <IonCardContent className="ion-no-padding">
 
@@ -86,59 +113,38 @@ const MainVisitCard = React.memo<MainVisitCardProps>(({
           />
           <IonButton
             slot="end"
-            fill="clear"
+            fill="outline"
+            color="primary"
+            size="small"
             onClick={onAddNewSchool}
             title="Tambah sekolah baru"
-            style={{ margin: 0 }}
+            style={{ margin: '4px 0 0 8px', whiteSpace: 'nowrap' }}
           >
-            <IonIcon icon={addOutline} slot="icon-only" />
+            <IonIcon icon={addOutline} slot="start" />
+            Tambah Sekolah
           </IonButton>
         </IonItem>
 
-        <div className="modal-map-label-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px 0 16px' }}>
-          <span className="modal-map-label" style={{ fontWeight: '600', fontSize: '14px', color: '#333' }}>📍 Lokasi Peta</span>
-          <IonButton
-            fill="clear"
-            size="small"
-            onClick={onAutoLocate}
-            disabled={isGeocoding}
-            style={{ margin: 0, height: '24px', fontSize: '13px' }}
-          >
-            {isGeocoding ? 'Mencari...' : 'Cari Otomatis'}
-          </IonButton>
-        </div>
-
-        <div style={{ padding: '4px 16px 8px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {isGeocoding && <IonSpinner name="crescent" style={{ transform: 'scale(0.7)', width: '20px', height: '20px' }} />}
-          {newSchoolLat && newSchoolLng ? (
-            <span style={{ fontSize: '12px', color: '#2dd36f' }}>
-              Koordinat Terkunci: {newSchoolLat.toFixed(5)}, {newSchoolLng.toFixed(5)}
-            </span>
-          ) : (
-            !isGeocoding && <span style={{ fontSize: '12px', color: '#888' }}>Lokasi koordinat belum diset.</span>
-          )}
-        </div>
-
         <IonItem lines="full">
-          <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>Metode Interaksi (Chat / Visit)</IonLabel>
-          <IonSelect placeholder="Pilih Chat / Visit" value={interactionType} onIonChange={e => onChange('interactionType', e.detail.value)}>
-            <IonSelectOption value="Chat">Chat</IonSelectOption>
-            <IonSelectOption value="Visit">Visit</IonSelectOption>
-          </IonSelect>
+          <FieldLabelWithInfo label="by Chat/Visit" description="Contoh: Nama Orang, Jabatan" />
+          <IonTextarea placeholder="Masukkan detail interaksi..." value={interactionType} onIonChange={e => onChange('interactionType', e.detail.value ?? '' )} rows={2} />
         </IonItem>
 
         <IonItem lines="full">
-          <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>Product Offer</IonLabel>
-          <IonInput placeholder="Masukkan penawaran produk..." value={productOffer} onIonChange={e => onChange('productOffer', e.detail.value ?? '')} />
+          <FieldLabelWithInfo label="Offering" description="Contoh: Kalender, Yearbook, Majalah" />
+          <IonTextarea placeholder="Masukkan penawaran produk..." value={productOffer} onIonChange={e => onChange('productOffer', e.detail.value ?? '')} rows={2} />
         </IonItem>
 
         <IonItem lines="full">
-          <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>Respon</IonLabel>
+          <FieldLabelWithInfo label="Respon" description="Contoh: Respon dari orangnya yang berada di By Chat" />
           <IonTextarea placeholder="Masukkan respon pihak sekolah..." value={responSekolah} onIonChange={e => onChange('responSekolah', e.detail.value ?? '')} rows={2} />
         </IonItem>
 
         <IonItem lines="none" style={{ '--padding-bottom': '8px' }}>
-          <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>Status</IonLabel>
+          <FieldLabelWithInfo
+            label="Status"
+            description={"Arti Status:\n• OF = Offering (Sedang penawaran)\n• FU 1 / FU 2 = Follow Up tahap 1 & 2\n• C = Closing (Deal)\n• ND = No Deal (Batal/Tolak)\n• Cold / Warm / Hot = Tingkat ketertarikan (Rendah / Sedang / Sangat Tertarik)"}
+          />
           <IonSelect placeholder="Pilih Status Prospek" value={statusProspek} onIonChange={e => onChange('statusProspek', e.detail.value)}>
             <IonSelectOption value="OF">OF</IonSelectOption>
             <IonSelectOption value="FU 1">FU 1</IonSelectOption>
@@ -174,17 +180,12 @@ const PreviousProjectCard = React.memo<PreviousProjectCardProps>(({
   return (
     <IonCard style={{ margin: '0 0 16px 0', borderRadius: '12px' }}>
       <IonCardHeader style={{ background: '#fff7e6', color: '#d46b08' }}>
-        <IonCardTitle style={{ fontSize: '15px', fontWeight: 'bold' }}>Previous Project</IonCardTitle>
+        <IonCardTitle style={{ fontSize: '15px', fontWeight: 'bold' }}>⏰ PREVIOUS PROJECT</IonCardTitle>
       </IonCardHeader>
       <IonCardContent className="ion-no-padding">
         <IonItem lines="full">
           <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>Vendor</IonLabel>
-          <IonInput placeholder="Nama vendor sebelumnya..." value={prevVendor} onIonChange={e => onChange('prevVendor', e.detail.value ?? '')} />
-        </IonItem>
-
-        <IonItem lines="full">
-          <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>Spesifikasi</IonLabel>
-          <IonTextarea placeholder="Detail spesifikasi sebelumnya..." value={prevSpec} onIonChange={e => onChange('prevSpec', e.detail.value ?? '')} rows={2} />
+          <IonInput placeholder="Contoh: Mavis" value={prevVendor} onIonChange={e => onChange('prevVendor', e.detail.value ?? '')} />
         </IonItem>
 
         <IonGrid className="ion-no-padding">
@@ -205,7 +206,7 @@ const PreviousProjectCard = React.memo<PreviousProjectCardProps>(({
         </IonGrid>
 
         <IonItem lines="none" style={{ '--padding-bottom': '8px' }}>
-          <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px', color: '#e63946' }}>Problem</IonLabel>
+          <FieldLabelWithInfo label="Problem" description="Contoh: Ada nama guru yang kurang lengkap dibagian prestasi" />
           <IonTextarea placeholder="Kendala atau masalah proyek lalu..." value={prevProblem} onIonChange={e => onChange('prevProblem', e.detail.value ?? '')} rows={2} />
         </IonItem>
       </IonCardContent>
@@ -221,39 +222,54 @@ interface NextProjectCardProps {
   nextSpec: string;
   nextHarga: string;
   nextJumlah: string;
+  nextSpecDetail: string;
+  harapan: string;
   onChange: FieldChangeHandler;
 }
 
 const NextProjectCard = React.memo<NextProjectCardProps>(({
-  nextSpec, nextHarga, nextJumlah, onChange
+  nextSpec, nextHarga, nextJumlah, nextSpecDetail, harapan, onChange
 }) => {
   return (
     <IonCard style={{ margin: '0 0 16px 0', borderRadius: '12px' }}>
       <IonCardHeader style={{ background: '#e6f7ff', color: '#0050b3' }}>
-        <IonCardTitle style={{ fontSize: '15px', fontWeight: 'bold' }}>Next Project</IonCardTitle>
+        <IonCardTitle style={{ fontSize: '15px', fontWeight: 'bold' }}>💡 NEXT PROJECT</IonCardTitle>
       </IonCardHeader>
       <IonCardContent className="ion-no-padding">
         <IonItem lines="full">
-          <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>Spesifikasi</IonLabel>
+          <FieldLabelWithInfo label="Spesifikasi" description="Contoh: Masih sama seperti tahun lalu" />
           <IonTextarea placeholder="Rencana spesifikasi proyek ke depan..." value={nextSpec} onIonChange={e => onChange('nextSpec', e.detail.value ?? '')} rows={2} />
+       
         </IonItem>
 
         <IonGrid className="ion-no-padding">
           <IonRow>
             <IonCol size="6">
-              <IonItem lines="none">
+              <IonItem lines="full">
                 <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>Harga</IonLabel>
                 <IonInput type="number" placeholder="Estimasi Rp" value={nextHarga} onIonChange={e => onChange('nextHarga', e.detail.value ?? '')} />
               </IonItem>
             </IonCol>
             <IonCol size="6">
-              <IonItem lines="none">
+              <IonItem lines="full">
                 <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>Jumlah</IonLabel>
                 <IonInput type="number" placeholder="Estimasi Qty" value={nextJumlah} onIonChange={e => onChange('nextJumlah', e.detail.value ?? '')} />
               </IonItem>
             </IonCol>
           </IonRow>
         </IonGrid>
+
+        <IonItem lines="full">
+          <FieldLabelWithInfo label="Spesifikasi Detail" description="Contoh: 1.650 eks, uk 44 x 64 cm, 1 bulanan, 6 lembar, Spiral hunger, Include session foto" />
+          <IonTextarea placeholder="Detail spesifikasi..." value={nextSpecDetail} onIonChange={e => onChange('nextSpecDetail', e.detail.value ?? '')} rows={4} />
+         
+        </IonItem>
+
+        <IonItem lines="none" style={{ '--padding-bottom': '8px' }}>
+          <FieldLabelWithInfo label="Harapan" description="Contoh: Bisa bekerja sama lagi, bertemu untuk membahas project kalender" />
+          <IonTextarea placeholder="Harapan proyek selanjutnya..." value={harapan} onIonChange={e => onChange('harapan', e.detail.value ?? '')} rows={2}/>
+          
+        </IonItem>
       </IonCardContent>
     </IonCard>
   );
@@ -261,43 +277,59 @@ const NextProjectCard = React.memo<NextProjectCardProps>(({
 NextProjectCard.displayName = 'NextProjectCard';
 
 /* =====================================================================
-   CARD 4: LAIN-LAIN & JANJI TEMU
+   CARD 4: JANJI TEMU & LAIN-LAIN
 ===================================================================== */
 interface OtherInfoCardProps {
-  harapan: string;
   appointment: string;
   infoLain: string;
   onChange: FieldChangeHandler;
 }
+const formatAppointmentValue = (value: string): string => {
+  const trimmed = value.trim();
+  const match = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
 
+  if (!match) {
+    return trimmed;
+  }
+
+  const [, day, month, year] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+  return `${dayNames[date.getDay()]}, ${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${year}`;
+};
 const OtherInfoCard = React.memo<OtherInfoCardProps>(({
-  harapan, appointment, infoLain, onChange
+  appointment, infoLain, onChange
 }) => {
   return (
     <IonCard style={{ margin: '0 0 24px 0', borderRadius: '12px' }}>
       <IonCardHeader color="light">
-        <IonCardTitle style={{ fontSize: '15px', fontWeight: 'bold' }}>Lain-Lain & Janji Temu</IonCardTitle>
+        <IonCardTitle style={{ fontSize: '15px', fontWeight: 'bold' }}>🗓 INFORMASI LAIN</IonCardTitle>
       </IonCardHeader>
       <IonCardContent className="ion-no-padding">
         <IonItem lines="full">
-          <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>Harapan</IonLabel>
-          <IonInput placeholder="Harapan atau ekspektasi sekolah..." value={harapan} onIonChange={e => onChange('harapan', e.detail.value ?? '')} />
-        </IonItem>
-
-        <IonItem lines="full">
-          <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>APPOINTMENT</IonLabel>
-          <IonInput type="date" value={appointment} onIonChange={e => onChange('appointment', e.detail.value ?? '')} />
+          <FieldLabelWithInfo label="APPOINTMENT (Hari, Tanggal)" description="Contoh: Senin, 21/07/2026" />
+          <IonInput
+            value={appointment}
+            placeholder="Contoh: Senin, 21/07/2026"
+            onIonChange={e => {
+              const formatted = formatAppointmentValue(e.detail.value ?? '');
+              onChange('appointment', formatted);
+            }}
+          />
         </IonItem>
 
         <IonItem lines="none" style={{ '--padding-bottom': '8px' }}>
-          <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>INFORMASI LAIN</IonLabel>
+          <FieldLabelWithInfo label="🔑 INFORMASI LAIN" description="Contoh: karena Kepala sekolah sudah ganti bukan pak yanto, perlu untuk datang dan silaturahmi" />
           <IonTextarea placeholder="Catatan tambahan lainnya..." value={infoLain} onIonChange={e => onChange('infoLain', e.detail.value ?? '')} rows={2} />
+        
         </IonItem>
       </IonCardContent>
     </IonCard>
   );
 });
 OtherInfoCard.displayName = 'OtherInfoCard';
+
 
 /* =====================================================================
    KOMPONEN UTAMA
@@ -325,13 +357,12 @@ const TambahReport: React.FC = () => {
     nextSpec: '',
     nextHarga: '',
     nextJumlah: '',
+    nextSpecDetail: '',
     harapan: '',
     appointment: '',
     infoLain: '',
   });
 
-  // useCallback -> identitas fungsi ini stabil antar-render,
-  // syarat wajib supaya React.memo di komponen Card benar-benar berguna.
   const handleInputChange = useCallback<FieldChangeHandler>((key, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -339,16 +370,10 @@ const TambahReport: React.FC = () => {
     }));
   }, []);
 
-  // Navigasi ke halaman Tambah Sekolah, bawa info supaya halaman itu tahu
-  // harus balik ke sini (bukan reset form) setelah sekolah baru tersimpan.
   const handleAddNewSchool = useCallback((): void => {
     history.push(ROUTE_TAMBAH_SEKOLAH, { returnTo: ROUTE_TAMBAH_REPORT });
   }, [history]);
 
-  // Dipanggil setiap kali halaman ini AKTIF kembali (termasuk saat kembali
-  // dari halaman Tambah Sekolah). Kalau ada nama sekolah baru yang dibawa,
-  // isi otomatis ke field Nama Sekolah, lalu bersihkan state supaya tidak
-  // terisi ulang kalau user masuk-keluar halaman ini lagi tanpa alasan.
   useIonViewWillEnter(() => {
     if (location.state?.newSchoolName) {
       handleInputChange('schoolName', location.state.newSchoolName);
@@ -356,57 +381,6 @@ const TambahReport: React.FC = () => {
     }
   });
 
-  // === FUNGSI GEOCODING OTOMATIS ===
-  // Catatan: fungsi ini bergantung pada schoolName & newSchoolCity terbaru,
-  // jadi identitasnya wajar berubah saat field itu diketik. Ini tidak masalah
-  // karena MainVisitCard toh re-render setiap schoolName berubah (memang sedang diketik).
-  // Card lain (Previous/Next/OtherInfo) tidak menerima fungsi ini sama sekali.
-  const handleAutoLocateSchool = useCallback(async () => {
-    if (!formData.schoolName.trim()) {
-      presentToast({
-        message: 'Isi Nama Sekolah dulu sebelum mencari lokasi',
-        duration: 2000,
-        color: 'warning',
-        position: 'top',
-      });
-      return;
-    }
-
-    setIsGeocoding(true);
-
-    const query = formData.newSchoolCity
-      ? `${formData.schoolName.trim()}, ${formData.newSchoolCity}`
-      : formData.schoolName.trim();
-
-    const result = await geocodeAddress(query);
-    setIsGeocoding(false);
-
-    if (result) {
-      setFormData((prev) => ({
-        ...prev,
-        newSchoolLat: result.lat,
-        newSchoolLng: result.lng,
-      }));
-      presentToast({
-        message: 'Lokasi ditemukan di peta!',
-        duration: 2000,
-        color: 'success',
-        position: 'top',
-      });
-    } else {
-      presentToast({
-        message: 'Lokasi tidak ditemukan, silakan pilih manual di peta',
-        duration: 2500,
-        color: 'warning',
-        position: 'top',
-      });
-    }
-  }, [formData.schoolName, formData.newSchoolCity, presentToast]);
-
-  // === FUNGSI SIMPAN REPORT ===
-  // Sengaja bergantung pada formData (tidak pakai functional-update trick)
-  // karena fungsi ini hanya dipicu oleh klik tombol, bukan tiap keystroke,
-  // jadi tidak berdampak ke performa re-render.
   const handleSimpan = useCallback(() => {
     if (!formData.schoolName || !formData.schoolName.trim()) {
       alert('Nama Sekolah wajib diisi!');
@@ -429,6 +403,7 @@ const TambahReport: React.FC = () => {
       next_spesifikasi: formData.nextSpec,
       next_harga: formData.nextHarga,
       next_jumlah: formData.nextJumlah,
+      next_spesifikasi_detail: formData.nextSpecDetail,
       harapan_sekolah: formData.harapan,
       appointment_date: formData.appointment,
       informasi_lain: formData.infoLain
@@ -450,15 +425,11 @@ const TambahReport: React.FC = () => {
 
           <MainVisitCard
             schoolName={formData.schoolName}
-            newSchoolLat={formData.newSchoolLat}
-            newSchoolLng={formData.newSchoolLng}
             interactionType={formData.interactionType}
             productOffer={formData.productOffer}
             responSekolah={formData.responSekolah}
             statusProspek={formData.statusProspek}
-            isGeocoding={isGeocoding}
             onChange={handleInputChange}
-            onAutoLocate={handleAutoLocateSchool}
             onAddNewSchool={handleAddNewSchool}
           />
 
@@ -475,11 +446,12 @@ const TambahReport: React.FC = () => {
             nextSpec={formData.nextSpec}
             nextHarga={formData.nextHarga}
             nextJumlah={formData.nextJumlah}
+            nextSpecDetail={formData.nextSpecDetail}
+            harapan={formData.harapan}
             onChange={handleInputChange}
           />
 
           <OtherInfoCard
-            harapan={formData.harapan}
             appointment={formData.appointment}
             infoLain={formData.infoLain}
             onChange={handleInputChange}

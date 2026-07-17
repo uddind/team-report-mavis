@@ -155,57 +155,83 @@ const TambahSekolah: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="ion-padding" style={{ '--background': '#f4f5f8' }}>
-        <IonGrid fixed>
-          <IonCard style={{ margin: '0 0 16px 0', borderRadius: '12px' }}>
-            <IonCardHeader color="light">
-              <IonCardTitle style={{ fontSize: '15px', fontWeight: 'bold' }}>
-                Data Sekolah
+      <IonContent style={{ '--background': '#f4f5f8' }}>
+        <IonGrid fixed style={{ padding: '16px' }}>
+
+          <IonCard style={{ margin: '0 0 16px 0', borderRadius: '12px', boxShadow: 'none', border: '0.5px solid var(--ion-color-light-shade)' }}>
+
+            {/* Header card */}
+            <IonCardHeader style={{ background: 'var(--ion-color-light)', padding: '10px 16px', borderBottom: '0.5px solid var(--ion-color-light-shade)' }}>
+              <IonCardTitle style={{ fontSize: '14px', fontWeight: '500', color: 'var(--ion-color-dark)' }}>
+                Data sekolah
               </IonCardTitle>
             </IonCardHeader>
+
             <IonCardContent className="ion-no-padding">
 
-              <IonItem lines="full">
-                <IonLabel position="stacked" style={{ fontWeight: '600', marginBottom: '4px' }}>
-                  NAMA SEKOLAH <IonText color="danger">*</IonText>
+              {/* Nama Sekolah */}
+              <IonItem lines="full" style={{ '--padding-top': '10px', '--padding-bottom': '10px' }}>
+                <IonLabel position="stacked" style={{ fontSize: '12px', fontWeight: '500', color: 'var(--ion-color-medium)', marginBottom: '6px' }}>
+                  Nama sekolah <IonText color="danger" style={{ fontSize: '11px' }}>*</IonText>
                 </IonLabel>
                 <IonInput
                   placeholder="Masukkan nama sekolah..."
                   value={schoolName}
                   onIonInput={(e) => setSchoolName(e.detail.value ?? '')}
+                  style={{ fontSize: '14px' }}
                 />
               </IonItem>
 
-              <ProvinceSelect
-                data={regional.provinces}
-                value={regional.selectedProvince?.code ?? ''}
-                onChange={regional.selectProvince}
-                loading={regional.loadingProvinces}
-              />
+              {/* Provinsi */}
+              <div>
+                <ProvinceSelect
+                  data={regional.provinces}
+                  value={regional.selectedProvince?.code ?? ''}
+                  onChange={regional.selectProvince}
+                  loading={regional.loadingProvinces}
+                />
+                {regional.selectedProvince && regional.regencies.length > 0 && (
+                  <div style={{ padding: '4px 16px 6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#63991a', flexShrink: 0 }} />
+                    <span style={{ fontSize: '11px', color: '#3b6d11' }}>
+                      {regional.regencies.length} kota/kabupaten tersedia
+                    </span>
+                  </div>
+                )}
+              </div>
 
-              <RegencySelect
-                data={regional.regencies}
-                value={regional.selectedRegency?.code ?? ''}
-                onChange={regional.selectRegency}
-                loading={regional.loadingRegencies}
-                disabled={!regional.selectedProvince}
-              />
+              {/* Kota/Kabupaten */}
+              <div style={{ opacity: !regional.selectedProvince ? 0.45 : 1, transition: 'opacity 0.2s' }}>
+                <RegencySelect
+                  data={regional.regencies}
+                  value={regional.selectedRegency?.code ?? ''}
+                  onChange={regional.selectRegency}
+                  loading={regional.loadingRegencies}
+                  disabled={!regional.selectedProvince}
+                />
+              </div>
 
-              <DistrictSelect
-                data={regional.districts}
-                value={regional.selectedDistrict?.code ?? ''}
-                onChange={regional.selectDistrict}
-                loading={regional.loadingDistricts}
-                disabled={!regional.selectedRegency}
-              />
+              {/* Kecamatan */}
+              <div style={{ opacity: !regional.selectedRegency ? 0.45 : 1, transition: 'opacity 0.2s' }}>
+                <DistrictSelect
+                  data={regional.districts}
+                  value={regional.selectedDistrict?.code ?? ''}
+                  onChange={regional.selectDistrict}
+                  loading={regional.loadingDistricts}
+                  disabled={!regional.selectedRegency}
+                />
+              </div>
 
-              <VillageSelect
-                data={regional.villages}
-                value={regional.selectedVillage?.code ?? ''}
-                onChange={regional.selectVillage}
-                loading={regional.loadingVillages}
-                disabled={!regional.selectedDistrict}
-              />
+              {/* Kelurahan */}
+              <div style={{ opacity: !regional.selectedDistrict ? 0.45 : 1, transition: 'opacity 0.2s' }}>
+                <VillageSelect
+                  data={regional.villages}
+                  value={regional.selectedVillage?.code ?? ''}
+                  onChange={regional.selectVillage}
+                  loading={regional.loadingVillages}
+                  disabled={!regional.selectedDistrict}
+                />
+              </div>
 
             </IonCardContent>
           </IonCard>
@@ -216,9 +242,9 @@ const TambahSekolah: React.FC = () => {
             color="primary"
             onClick={handleSimpan}
             disabled={isSaving}
-            style={{ height: '48px', fontWeight: 'bold' }}
+            style={{ height: '48px', fontWeight: '500', fontSize: '15px', marginTop: '8px' }}
           >
-            {isSaving ? 'Menyimpan...' : 'Simpan Sekolah'}
+            {isSaving ? 'Menyimpan...' : 'Simpan sekolah'}
           </IonButton>
 
         </IonGrid>

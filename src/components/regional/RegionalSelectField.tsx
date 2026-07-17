@@ -47,12 +47,26 @@ function RegionalSelectField<T extends RegionalOption>({
 
   return (
     <IonItem lines="full">
-      <IonLabel position="stacked" style={{ fontWeight: 600, marginBottom: 4 }}>
+      <IonLabel position="stacked" style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ion-color-medium)', marginBottom: 6 }}>
         {label}
         {required && (
-          <IonText color="danger" style={{ marginLeft: 4 }}>
+          <IonText color="danger" style={{ marginLeft: 4, fontSize: '11px' }}>
             *
           </IonText>
+        )}
+        {!required && (
+          <span style={{
+            fontSize: '10px',
+            color: 'var(--ion-color-medium)',
+            background: 'var(--ion-color-light)',
+            border: '0.5px solid var(--ion-color-light-shade)',
+            borderRadius: '4px',
+            padding: '1px 6px',
+            marginLeft: '6px',
+            verticalAlign: 'middle',
+          }}>
+            Opsional
+          </span>
         )}
         {loading && (
           <IonSpinner
@@ -77,4 +91,4 @@ function RegionalSelectField<T extends RegionalOption>({
   );
 }
 
-export default RegionalSelectField;
+export default RegionalSelectField; 
