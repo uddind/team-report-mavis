@@ -1,5 +1,5 @@
 // src/components/SchoolAutocomplete.tsx
-import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { IonInput, IonList, IonItem, IonLabel } from "@ionic/react";
 import { supabase } from '../services/supabaseClient';
 
@@ -18,16 +18,48 @@ const SchoolAutocomplete = forwardRef<SchoolAutocompleteRef, SchoolAutocompleteP
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
 
+    const fetchSchools = useCallback(async (searchQuery: string) => {
+      const normalized = searchQuery?.trim();
+      if (!normalized) {
+        setSuggestions([]);
+        return;
+      }
+      try {
+        const { data, error } = await supabase
+          .from('sekolah')
+          .select('nama_sekolah, city_name, district_name')
+          .ilike('nama_sekolah', `%${normalized}%`)
+          .order('nama_sekolah', { ascending: true })
+          .limit(8);
+
+        if (error) throw error;
+
+        if (data) {
+          const normalizedInput = normalized.toLowerCase();
+          const exactMatch = data.find((item: any) => item.nama_sekolah?.toLowerCase() === normalizedInput);
+          const ranked = exactMatch
+            ? [exactMatch, ...data.filter((item: any) => item.nama_sekolah?.toLowerCase() !== normalizedInput)]
+            : data;
+
+          setSuggestions(ranked);
+          setShowSuggestions(true);
+        }
+      } catch (err) {
+        console.error('Gagal memuat sekolah:', err);
+      }
+    }, []);
+
     // Sinkronkan input dari parent, lalu cari sekolah yang sesuai
     useEffect(() => {
       if (value !== query) {
         setQuery(value);
       }
 
-      if (value?.trim() && value === query) {
+      if (value?.trim()) {
         setShowSuggestions(true);
+        void fetchSchools(value);
       }
-    }, [value, query]);
+    }, [value, query, fetchSchools]);
 
     useEffect(() => {
       if (!value?.trim()) {
@@ -44,32 +76,12 @@ const SchoolAutocomplete = forwardRef<SchoolAutocompleteRef, SchoolAutocompleteP
       }, 300);
 
       return () => clearTimeout(delayDebounceFn);
-    }, [value, query]);
-
-    const fetchSchools = async (searchQuery: string) => {
-      const normalized = searchQuery?.trim();
-      if (!normalized) {
-        setSuggestions([]);
-        return;
-      }
-      try {
-        const { data, error } = await supabase
-          .from('sekolah')
-          .select('nama_sekolah, city_name, district_name')
-          .ilike('nama_sekolah', `%${normalized}%`)
-          .limit(5);
-
-        if (error) throw error;
-        if (data) setSuggestions(data);
-      } catch (err) {
-        console.error('Gagal memuat sekolah:', err);
-      }
-    };
+    }, [value, query, fetchSchools]);
 
     useImperativeHandle(ref, () => ({
       refetch: (forcedQuery?: string) => {
         const targetSearch = forcedQuery || query;
-        fetchSchools(targetSearch);
+        void fetchSchools(targetSearch);
       }
     }));
 
