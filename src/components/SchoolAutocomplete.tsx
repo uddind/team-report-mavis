@@ -1,5 +1,5 @@
 // src/components/SchoolAutocomplete.tsx
-import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
+import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { IonInput, IonList, IonItem, IonLabel } from "@ionic/react";
 import { supabase } from '../services/supabaseClient';
 

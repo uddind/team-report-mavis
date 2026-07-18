@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { IonButton, IonIcon, useIonToast } from '@ionic/react';
 import { locateOutline } from 'ionicons/icons';

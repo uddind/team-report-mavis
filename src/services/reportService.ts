@@ -6,13 +6,51 @@ import type { Report } from '../types/Report';
 // ===========================================
 function parsePriceToNumber(text: string): number | null {
   if (!text) return null;
-  const digitsOnly = text.replace(/[^0-9]/g, '');
-  return digitsOnly ? parseInt(digitsOnly, 10) : null;
+
+  const normalized = String(text).trim();
+  if (!normalized) return null;
+
+  const sanitized = normalized
+    .replace(/[^0-9,.-]/g, '')
+    .replace(/,/g, '');
+
+  if (!sanitized || sanitized === '.' || sanitized === '-') return null;
+
+  const parsed = Number(sanitized);
+  if (!Number.isFinite(parsed)) return null;
+
+  return Math.round(parsed);
 }
 
 function formatNumberToPrice(value: number | null): string {
   if (value === null || value === undefined) return '';
   return 'Rp ' + value.toLocaleString('id-ID');
+}
+
+export function normalizeAppointmentDate(value: string | null | undefined): string | null {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const match = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if (!match) return null;
+
+  const [, day, month, year] = match;
+  const parsedDay = Number(day);
+  const parsedMonth = Number(month);
+  const parsedYear = Number(year);
+
+  const date = new Date(parsedYear, parsedMonth - 1, parsedDay);
+  if (
+    date.getFullYear() !== parsedYear ||
+    date.getMonth() !== parsedMonth - 1 ||
+    date.getDate() !== parsedDay
+  ) {
+    return null;
+  }
+
+  return `${String(parsedYear).padStart(4, '0')}-${String(parsedMonth).padStart(2, '0')}-${String(parsedDay).padStart(2, '0')}`;
 }
 
 // ===========================================
@@ -63,7 +101,7 @@ function toRow(report: Report, userId: string): Omit<ReportRow, 'created_at'> & 
     next_quantity: report.nextProject.jumlah,
     next_specification: report.nextProject.spesifikasi,
     next_expectation: report.nextProject.harapan,
-    appointment_date: report.appointment.tanggal || null,
+    appointment_date: normalizeAppointmentDate(report.appointment.tanggal),
     appointment_time: report.appointment.jam || null,
     appointment_note: report.appointment.catatan,
     other_information: report.informasiLain,

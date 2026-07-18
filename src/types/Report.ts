@@ -3,7 +3,7 @@
 // ===========================================
 
 /** Status pipeline code shown in filters and badges */
-export type StatusCode = 'OF' | 'FU1' | 'C' | 'ND';
+export type StatusCode = 'OF' | 'FU1' | 'FU2' | 'C' | 'ND';
 
 /** Temperature/qualification level of the lead */
 export type StatusTemperature = 'Cold' | 'Warm' | 'Hot';

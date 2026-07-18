@@ -133,6 +133,8 @@ const EditReport: React.FC = () => {
       respon,
       statusCode,
       statusTemperature,
+      latitude: null,
+      longitude: null,
       previousProject: {
         vendor: prevVendor,
         harga: prevHarga,
