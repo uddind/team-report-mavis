@@ -102,3 +102,43 @@
     transform: translateY(0);
   }
 }
+
+.ranking-card{
+    background:#fff;
+    border-radius:18px;
+    padding:18px;
+    margin:16px;
+    box-shadow:0 6px 20px rgba(0,0,0,.08);
+}
+
+.ranking-card h2{
+    margin-bottom:20px;
+    font-size:18px;
+    font-weight:700;
+}
+
+.ranking-item{
+    margin-bottom:18px;
+}
+
+.ranking-header{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:8px;
+    font-size:14px;
+}
+
+.ranking-bar{
+    width:100%;
+    height:12px;
+    background:#edf2f7;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.ranking-fill{
+    height:100%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:20px;
+    transition:.5s;
+}

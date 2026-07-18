@@ -219,7 +219,7 @@ const ProfilePage: React.FC = () => {
               <span className="google-icon-circle">
                 <IonIcon icon={logoGoogle} />
               </span>
-              <span className="profile-card-title">Google Account</span>
+              <span className="profile-card-title">oogle Account</span>
             </div>
             <span className={`google-badge ${googleIdentity ? 'connected' : ''}`}>
               {googleIdentity ? (
@@ -282,7 +282,7 @@ const ProfilePage: React.FC = () => {
               <IonIcon icon={informationCircleOutline} />
             </span>
             <span className="profile-list-label">Tentang Aplikasi</span>
-            <span className="profile-list-version">v1.0.0</span>
+            <span className="profile-list-version">v0.2</span>
           </div>
         </div>
 

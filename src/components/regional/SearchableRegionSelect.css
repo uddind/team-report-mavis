@@ -1,0 +1,50 @@
+.region-select-item {
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+}
+
+.region-select-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748B;
+  margin-bottom: 6px;
+}
+
+.region-select-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.region-select-value {
+  font-size: 14px;
+  color: #0F172A;
+}
+
+.region-select-value.placeholder {
+  color: #94A3B8;
+}
+
+.region-select-chevron {
+  font-size: 16px;
+  color: #94A3B8;
+}
+
+.region-select-spinner {
+  width: 16px;
+  height: 16px;
+}
+
+.region-select-empty {
+  text-align: center;
+  color: #94A3B8;
+  font-size: 13px;
+  margin-top: 40px;
+}
+
+.region-select-active {
+  --background: #EFF6FF;
+  --color: #2563EB;
+  font-weight: 600;
+}
